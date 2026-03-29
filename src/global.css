@@ -1,2 +1,13 @@
 @import 'tailwindcss';
 @import 'uniwind';
+
+/* Brand tokens (reference in CSS or extend Tailwind theme as needed) */
+@theme {
+  --color-ivy-gold: #b45309;
+  --color-ivy-gold-light: #d97706;
+  --color-ivy-gold-muted: #92400e;
+  --color-ivy-bg-light: #fafafa;
+  --color-ivy-bg-dark: #09090b;
+  --color-ivy-card-light: #ffffff;
+  --color-ivy-card-dark: #18181b;
+}

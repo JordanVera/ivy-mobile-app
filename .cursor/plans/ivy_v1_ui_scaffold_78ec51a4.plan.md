@@ -4,22 +4,22 @@ overview: Scaffold Ivy Inc. Soarers as an Expo Router app with placeholder auth 
 todos:
   - id: deps-fonts-youtube
     content: 'Add dependencies: youtube-iframe, webview, linear-gradient, Google fonts packages; document placeholder video env var'
-    status: pending
+    status: completed
   - id: theme-tokens
     content: Extend global.css @theme + root Uniwind/navigation/status-bar alignment; optional Profile theme switcher
-    status: pending
+    status: completed
   - id: auth-mock-clerk-notes
     content: Add AuthContext + app/index redirect + (auth)/login placeholder with Clerk migration comments
-    status: pending
+    status: completed
   - id: tabs-five-screens
     content: Replace tab layout with Home, Watch, Vault, Community, Profile; remove explore
-    status: pending
+    status: completed
   - id: ivy-components-screens
     content: Build shared Ivy components and implement each tab screen per design reference with mock data
-    status: pending
+    status: completed
   - id: watch-embed
     content: Implement Watch featured player with react-native-youtube-iframe + placeholder ID and graceful loading/error UI
-    status: pending
+    status: completed
 isProject: false
 ---
 
