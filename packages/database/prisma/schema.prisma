@@ -1,0 +1,14 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+/// Placeholder row for tooling; replace with real domain models as the product grows.
+model IvyMeta {
+  id        Int    @id @default(1)
+  schemaTag String @default("v0")
+}
