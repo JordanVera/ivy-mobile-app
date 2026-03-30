@@ -1,4 +1,5 @@
-import { Tabs } from 'expo-router';
+import { useAuth } from '@clerk/expo';
+import { Redirect, Tabs } from 'expo-router';
 import React from 'react';
 
 import { HapticTab } from '@/components/haptic-tab';
@@ -6,7 +7,16 @@ import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useIvyColorScheme } from '@/hooks/use-ivy-color-scheme';
 
 export default function TabLayout() {
+  const { isSignedIn, isLoaded } = useAuth({ treatPendingAsSignedOut: false });
   const scheme = useIvyColorScheme();
+
+  if (!isLoaded) {
+    return null;
+  }
+
+  if (!isSignedIn) {
+    return <Redirect href="/login" />;
+  }
   const active = '#b45309';
   const inactive = scheme === 'dark' ? '#71717a' : '#a1a1aa';
   const tabBg = scheme === 'dark' ? '#09090b' : '#ffffff';

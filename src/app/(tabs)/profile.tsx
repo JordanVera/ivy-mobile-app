@@ -1,3 +1,4 @@
+import { useClerk, useUser } from '@clerk/expo';
 import { router } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
@@ -8,7 +9,6 @@ import { GoldGradientButton } from '@/components/ivy/gold-gradient-button';
 import { IvyCard } from '@/components/ivy/ivy-card';
 import { IvyHeading } from '@/components/ivy/ivy-heading';
 import { IvyText } from '@/components/ivy/ivy-text';
-import { useAuth } from '@/contexts/auth-context';
 import { getThemePreference, setThemePreference, type ThemePreference } from '@/lib/theme-preference';
 
 const THEME_OPTIONS: { key: ThemePreference; label: string }[] = [
@@ -18,7 +18,8 @@ const THEME_OPTIONS: { key: ThemePreference; label: string }[] = [
 ];
 
 export default function ProfileScreen() {
-  const { signOut } = useAuth();
+  const { user } = useUser();
+  const { signOut } = useClerk();
   const { hasAdaptiveThemes } = useUniwind();
   const [storedPref, setStoredPref] = useState<ThemePreference>('light');
 
@@ -35,6 +36,8 @@ export default function ProfileScreen() {
     await signOut();
     router.replace('/login');
   }, [signOut]);
+
+  const primaryEmail = user?.primaryEmailAddress?.emailAddress ?? user?.emailAddresses[0]?.emailAddress;
 
   return (
     <SafeAreaView style={{ flex: 1 }} edges={['top', 'left', 'right']}>
@@ -55,7 +58,7 @@ export default function ProfileScreen() {
             Account
           </IvyText>
           <IvyText className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
-            Placeholder profile — connect Clerk later for name, avatar, and membership tier.
+            {primaryEmail ?? 'Signed in with Clerk'}
           </IvyText>
         </IvyCard>
 

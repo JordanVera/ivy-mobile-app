@@ -1,15 +1,14 @@
+import { useAuth } from '@clerk/expo';
 import { Redirect } from 'expo-router';
 
-import { useAuth } from '@/contexts/auth-context';
-
 export default function Index() {
-  const { isAuthenticated, isReady } = useAuth();
+  const { isSignedIn, isLoaded } = useAuth({ treatPendingAsSignedOut: false });
 
-  if (!isReady) {
+  if (!isLoaded) {
     return null;
   }
 
-  if (isAuthenticated) {
+  if (isSignedIn) {
     return <Redirect href="/home" />;
   }
 

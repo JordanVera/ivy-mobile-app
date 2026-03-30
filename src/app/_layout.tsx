@@ -1,3 +1,5 @@
+import { ClerkProvider, useAuth } from '@clerk/expo';
+import { tokenCache } from '@clerk/expo/token-cache';
 import { ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
@@ -18,15 +20,16 @@ import 'react-native-reanimated';
 
 import '../global.css';
 
-import { AuthProvider, useAuth } from '@/contexts/auth-context';
 import { IvyDarkNavigationTheme, IvyLightNavigationTheme } from '@/constants/navigation-theme';
 import { useIvyColorScheme } from '@/hooks/use-ivy-color-scheme';
 import { loadStoredThemePreference } from '@/lib/theme-preference';
 
 SplashScreen.preventAutoHideAsync();
 
+const publishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY ?? '';
+
 function RootLayoutNav() {
-  const { isReady: authReady } = useAuth();
+  const { isLoaded: authReady } = useAuth({ treatPendingAsSignedOut: false });
   const scheme = useIvyColorScheme();
   const [themeReady, setThemeReady] = useState(false);
 
@@ -81,11 +84,17 @@ function RootLayoutNav() {
 }
 
 export default function RootLayout() {
+  if (!publishableKey) {
+    throw new Error(
+      'Missing EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY. Add it to .env / .env.local (see .env.example).',
+    );
+  }
+
   return (
-    <SafeAreaProvider>
-      <AuthProvider>
+    <ClerkProvider publishableKey={publishableKey} tokenCache={tokenCache}>
+      <SafeAreaProvider>
         <RootLayoutNav />
-      </AuthProvider>
-    </SafeAreaProvider>
+      </SafeAreaProvider>
+    </ClerkProvider>
   );
 }

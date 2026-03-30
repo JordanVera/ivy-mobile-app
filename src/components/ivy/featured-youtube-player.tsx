@@ -21,8 +21,11 @@ export function FeaturedYoutubePlayer() {
       <View className="aspect-video w-full items-center justify-center rounded-xl bg-zinc-200 dark:bg-zinc-800">
         <Pressable
           onPress={openYoutube}
-          className="rounded-xl bg-amber-600 px-4 py-3 active:opacity-90 dark:bg-amber-500">
-          <IvyText className="font-semibold text-white">Open placeholder video (web)</IvyText>
+          className="rounded-xl bg-amber-600 px-4 py-3 active:opacity-90 dark:bg-amber-500"
+        >
+          <IvyText className="font-semibold text-white">
+            Open placeholder video (web)
+          </IvyText>
         </Pressable>
       </View>
     );
@@ -35,7 +38,9 @@ export function FeaturedYoutubePlayer() {
           Could not load the player.
         </IvyText>
         <Pressable onPress={openYoutube}>
-          <IvyText className="font-semibold text-amber-600 dark:text-amber-400">Open in YouTube</IvyText>
+          <IvyText className="font-semibold text-amber-600 dark:text-amber-400">
+            Open in YouTube
+          </IvyText>
         </Pressable>
       </View>
     );
@@ -46,7 +51,8 @@ export function FeaturedYoutubePlayer() {
       {!ready ? (
         <View
           className="absolute left-0 right-0 top-0 z-10 items-center justify-center bg-zinc-900"
-          style={{ height: 220 }}>
+          style={{ height: 220 }}
+        >
           <ActivityIndicator color="#fbbf24" size="large" />
         </View>
       ) : null}
@@ -56,6 +62,10 @@ export function FeaturedYoutubePlayer() {
         videoId={YOUTUBE_PLACEHOLDER_VIDEO_ID}
         onReady={() => setReady(true)}
         onError={() => setFailed(true)}
+        webViewProps={{
+          scrollEnabled: false,
+          nestedScrollEnabled: true,
+        }}
       />
     </View>
   );

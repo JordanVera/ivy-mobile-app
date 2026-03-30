@@ -18,7 +18,13 @@ export default function WatchScreen() {
 
   return (
     <SafeAreaView style={{ flex: 1 }} edges={['top', 'left', 'right']}>
-      <View className="flex-1 bg-zinc-50 dark:bg-zinc-950" style={{ flex: 1, paddingHorizontal: 16, paddingBottom: 8 }}>
+      <ScrollView
+        nestedScrollEnabled
+        showsVerticalScrollIndicator={false}
+        className="flex-1 bg-zinc-50 dark:bg-zinc-950"
+        style={{ flex: 1 }}
+        contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 8 }}
+      >
         <ScreenHeader
           title="Watch"
           left={
@@ -48,20 +54,18 @@ export default function WatchScreen() {
           More to watch
         </IvyText>
 
-        <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
-          <View className="flex-row flex-wrap" style={{ gap }}>
-            {watchFeedItems.map((item) => (
-              <View key={item.id} style={{ width: colWidth }}>
-                <VideoThumbnailCard
-                  title={item.title}
-                  duration={item.duration}
-                  live={item.live}
-                />
-              </View>
-            ))}
-          </View>
-        </ScrollView>
-      </View>
+        <View className="flex-row flex-wrap" style={{ gap }}>
+          {watchFeedItems.map((item) => (
+            <View key={item.id} style={{ width: colWidth }}>
+              <VideoThumbnailCard
+                title={item.title}
+                duration={item.duration}
+                live={item.live}
+              />
+            </View>
+          ))}
+        </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }

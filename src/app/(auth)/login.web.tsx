@@ -1,5 +1,5 @@
 import { useAuth } from '@clerk/expo';
-import { AuthView } from '@clerk/expo/native';
+import { SignIn } from '@clerk/expo/web';
 import { router } from 'expo-router';
 import { useEffect } from 'react';
 import { View } from 'react-native';
@@ -8,12 +8,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { IvyHeading } from '@/components/ivy/ivy-heading';
 import { IvyText } from '@/components/ivy/ivy-text';
 
-/**
- * Native sign-in / sign-up via Clerk’s SwiftUI (iOS) and Compose (Android) UI.
- * Requires a development build (`npx expo run:ios` / `run:android`); not available in Expo Go.
- * Web uses `login.web.tsx` with `@clerk/expo/web` instead.
- */
-export default function LoginScreen() {
+export default function LoginScreenWeb() {
   const { isSignedIn, isLoaded } = useAuth({ treatPendingAsSignedOut: false });
 
   useEffect(() => {
@@ -29,7 +24,7 @@ export default function LoginScreen() {
   return (
     <SafeAreaView style={{ flex: 1 }} edges={['top', 'left', 'right', 'bottom']}>
       <View className="flex-1 bg-zinc-50 dark:bg-zinc-950">
-        <View className="items-center px-6 pb-2 pt-4">
+        <View className="items-center px-6 pb-4 pt-6">
           <IvyHeading className="text-center text-3xl text-amber-700 dark:text-amber-400">
             IVY INC. SOARERS
           </IvyHeading>
@@ -37,8 +32,8 @@ export default function LoginScreen() {
             Private community access
           </IvyText>
         </View>
-        <View style={{ flex: 1 }}>
-          <AuthView mode="signInOrUp" />
+        <View style={{ flex: 1, alignItems: 'center' }}>
+          <SignIn routing="hash" />
         </View>
       </View>
     </SafeAreaView>
