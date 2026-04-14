@@ -1,5 +1,5 @@
 import * as Linking from 'expo-linking';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Platform, Pressable, View } from 'react-native';
 import YoutubePlayer from 'react-native-youtube-iframe';
 
@@ -7,10 +7,21 @@ import { YOUTUBE_PLACEHOLDER_VIDEO_ID } from '@/constants/youtube';
 
 import { IvyText } from './ivy-text';
 
-export function FeaturedYoutubePlayer() {
+type FeaturedYoutubePlayerProps = {
+  /** When set, embeds this video; otherwise uses the app placeholder ID. */
+  videoId?: string | null;
+};
+
+export function FeaturedYoutubePlayer({ videoId }: FeaturedYoutubePlayerProps) {
   const [ready, setReady] = useState(false);
   const [failed, setFailed] = useState(false);
-  const watchUrl = `https://www.youtube.com/watch?v=${YOUTUBE_PLACEHOLDER_VIDEO_ID}`;
+  const resolvedId = (videoId?.trim() || YOUTUBE_PLACEHOLDER_VIDEO_ID) as string;
+  const watchUrl = `https://www.youtube.com/watch?v=${resolvedId}`;
+
+  useEffect(() => {
+    setReady(false);
+    setFailed(false);
+  }, [resolvedId]);
 
   const openYoutube = useCallback(() => {
     void Linking.openURL(watchUrl);
@@ -23,9 +34,7 @@ export function FeaturedYoutubePlayer() {
           onPress={openYoutube}
           className="rounded-xl bg-amber-600 px-4 py-3 active:opacity-90 dark:bg-amber-500"
         >
-          <IvyText className="font-semibold text-white">
-            Open placeholder video (web)
-          </IvyText>
+          <IvyText className="font-semibold text-white">Open in YouTube (web)</IvyText>
         </Pressable>
       </View>
     );
@@ -57,9 +66,10 @@ export function FeaturedYoutubePlayer() {
         </View>
       ) : null}
       <YoutubePlayer
+        key={resolvedId}
         height={220}
         play={false}
-        videoId={YOUTUBE_PLACEHOLDER_VIDEO_ID}
+        videoId={resolvedId}
         onReady={() => setReady(true)}
         onError={() => setFailed(true)}
         webViewProps={{

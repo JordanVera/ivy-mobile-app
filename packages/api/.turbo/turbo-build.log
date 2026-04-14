@@ -2,3 +2,11 @@
 > @ivy/api@0.0.0 build
 > tsc
 
+src/lib/youtube-playlist.ts(107,25): error TS2802: Type 'Set<string>' can only be iterated through when using the '--downlevelIteration' flag or with a '--target' of 'es2015' or higher.
+npm error Lifecycle script `build` failed with error:
+npm error code 2
+npm error path /Users/jojovera/Documents/ivy-inc-soarers/packages/api
+npm error workspace @ivy/api@0.0.0
+npm error location /Users/jojovera/Documents/ivy-inc-soarers/packages/api
+npm error command failed
+npm error command sh -c tsc

@@ -1,22 +1,62 @@
-import { View } from 'react-native';
+import * as Linking from 'expo-linking';
+import { Image } from 'expo-image';
+import { Pressable, StyleSheet, View } from 'react-native';
 
 import { IconSymbol } from '@/components/ui/icon-symbol';
 
 import { IvyText } from './ivy-text';
 
+function toHttpsThumbnailUri(url: string): string {
+  const t = url.trim();
+  if (t.startsWith('//')) return `https:${t}`;
+  return t;
+}
+
 type VideoThumbnailCardProps = {
   title: string;
   duration: string;
   live?: boolean;
+  thumbnailUrl?: string | null;
+  videoId?: string | null;
 };
 
-export function VideoThumbnailCard({ title, duration, live }: VideoThumbnailCardProps) {
-  return (
+export function VideoThumbnailCard({
+  title,
+  duration,
+  live,
+  thumbnailUrl,
+  videoId,
+}: VideoThumbnailCardProps) {
+  const openVideo = () => {
+    const id = videoId?.trim();
+    if (id) void Linking.openURL(`https://www.youtube.com/watch?v=${id}`);
+  };
+
+  const thumbUri = thumbnailUrl?.trim() ? toHttpsThumbnailUri(thumbnailUrl) : null;
+
+  const card = (
     <View className="mb-3 overflow-hidden rounded-xl border border-zinc-200 bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-800">
-      <View className="aspect-video w-full items-center justify-center bg-zinc-200 dark:bg-zinc-950">
-        <IconSymbol name="play.circle.fill" size={40} color="#b45309" />
+      <View
+        className="w-full bg-zinc-200 dark:bg-zinc-950"
+        style={styles.thumbArea}
+      >
+        {thumbUri ? (
+          <Image
+            source={{ uri: thumbUri }}
+            style={StyleSheet.absoluteFillObject}
+            contentFit="cover"
+            accessible={false}
+          />
+        ) : null}
+        <View
+          pointerEvents="none"
+          className="items-center justify-center"
+          style={StyleSheet.absoluteFillObject}
+        >
+          <IconSymbol name="play.circle.fill" size={40} color="#b45309" />
+        </View>
         {live ? (
-          <View className="absolute left-2 top-2 rounded bg-red-600 px-2 py-0.5">
+          <View className="absolute left-2 top-2 z-10 rounded bg-red-600 px-2 py-0.5">
             <IvyText className="text-xs font-bold text-white">LIVE</IvyText>
           </View>
         ) : null}
@@ -29,4 +69,23 @@ export function VideoThumbnailCard({ title, duration, live }: VideoThumbnailCard
       </View>
     </View>
   );
+
+  if (videoId?.trim()) {
+    return (
+      <Pressable onPress={openVideo} className="active:opacity-90">
+        {card}
+      </Pressable>
+    );
+  }
+
+  return card;
 }
+
+const styles = StyleSheet.create({
+  thumbArea: {
+    width: '100%',
+    aspectRatio: 16 / 9,
+    position: 'relative',
+    overflow: 'hidden',
+  },
+});
