@@ -39,6 +39,14 @@ yarn-error.*
 
 app-example
 
+# Next.js
+.next/
+out/
+
+# Prisma
+packages/database/prisma/*.db
+packages/database/prisma/*.db-journal
+
 # generated native folders
 /ios
 /android
