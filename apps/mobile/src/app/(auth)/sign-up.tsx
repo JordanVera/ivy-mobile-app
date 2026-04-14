@@ -1,4 +1,4 @@
-import { useSignIn } from '@clerk/expo';
+import { useAuth, useSignUp } from '@clerk/expo';
 import { type Href, Link, useRouter } from 'expo-router';
 import { useState } from 'react';
 import {
@@ -15,8 +15,9 @@ import { GoldGradientButton } from '@/components/ivy/gold-gradient-button';
 import { IvyHeading } from '@/components/ivy/ivy-heading';
 import { IvyText } from '@/components/ivy/ivy-text';
 
-export default function LoginScreen() {
-  const { signIn, errors, fetchStatus } = useSignIn();
+export default function SignUpScreen() {
+  const { signUp, errors, fetchStatus } = useSignUp();
+  const { isSignedIn } = useAuth();
   const router = useRouter();
   const [emailAddress, setEmailAddress] = useState('');
   const [password, setPassword] = useState('');
@@ -24,7 +25,7 @@ export default function LoginScreen() {
   const isBusy = fetchStatus === 'fetching';
 
   const handleSubmit = async () => {
-    const { error } = await signIn.password({
+    const { error } = await signUp.password({
       emailAddress,
       password,
     });
@@ -32,30 +33,17 @@ export default function LoginScreen() {
       return;
     }
 
-    if (signIn.status === 'complete') {
-      await signIn.finalize({
-        navigate: ({ session }) => {
-          if (session?.currentTask) {
-            return;
-          }
-          router.replace('/home' as Href);
-        },
-      });
-    } else if (signIn.status === 'needs_client_trust') {
-      const emailCodeFactor = signIn.supportedSecondFactors?.find(
-        (factor) => factor.strategy === 'email_code',
-      );
-      if (emailCodeFactor) {
-        await signIn.mfa.sendEmailCode();
-      }
+    if (!error) {
+      await signUp.verifications.sendEmailCode();
     }
   };
 
   const handleVerify = async () => {
-    await signIn.mfa.verifyEmailCode({ code });
-
-    if (signIn.status === 'complete') {
-      await signIn.finalize({
+    await signUp.verifications.verifyEmailCode({
+      code,
+    });
+    if (signUp.status === 'complete') {
+      await signUp.finalize({
         navigate: ({ session }) => {
           if (session?.currentTask) {
             return;
@@ -66,13 +54,21 @@ export default function LoginScreen() {
     }
   };
 
-  if (signIn.status === 'needs_client_trust') {
+  if (signUp.status === 'complete' || isSignedIn) {
+    return null;
+  }
+
+  if (
+    signUp.status === 'missing_requirements' &&
+    signUp.unverifiedFields.includes('email_address') &&
+    signUp.missingFields.length === 0
+  ) {
     return (
       <SafeAreaView style={{ flex: 1 }} edges={['top', 'left', 'right', 'bottom']}>
         <View className="flex-1 bg-zinc-50 px-6 pt-8 dark:bg-zinc-950">
-          <IvyHeading className="text-2xl text-amber-700 dark:text-amber-400">Verify your account</IvyHeading>
+          <IvyHeading className="text-2xl text-amber-700 dark:text-amber-400">Verify your email</IvyHeading>
           <IvyText className="mt-2 text-zinc-600 dark:text-zinc-400">
-            Enter the code we sent to your email.
+            Enter the code we sent to {emailAddress || 'your inbox'}.
           </IvyText>
           <TextInput
             value={code}
@@ -90,6 +86,9 @@ export default function LoginScreen() {
           <View className="mt-6">
             <GoldGradientButton title="Verify" onPress={handleVerify} disabled={isBusy || !code} />
           </View>
+          <Pressable className="mt-4 items-center" onPress={() => signUp.verifications.sendEmailCode()}>
+            <IvyText className="text-sm text-amber-700 underline dark:text-amber-400">Resend code</IvyText>
+          </Pressable>
           {isBusy ? (
             <ActivityIndicator className="mt-4" />
           ) : null}
@@ -110,7 +109,7 @@ export default function LoginScreen() {
               IVY INC. SOARERS
             </IvyHeading>
             <IvyText className="mt-2 text-center text-zinc-600 dark:text-zinc-400">
-              Sign in to continue
+              Create your account
             </IvyText>
           </View>
 
@@ -125,16 +124,16 @@ export default function LoginScreen() {
               onChangeText={setEmailAddress}
               className="rounded-xl border border-zinc-200 bg-white px-4 py-3 text-zinc-900 dark:border-zinc-700 dark:bg-zinc-900 dark:text-white"
             />
-            {errors.fields?.identifier != null && (
+            {errors.fields?.emailAddress != null && (
               <IvyText className="text-sm text-red-600 dark:text-red-400">
-                {String(errors.fields.identifier.message ?? errors.fields.identifier)}
+                {String(errors.fields.emailAddress.message ?? errors.fields.emailAddress)}
               </IvyText>
             )}
             <TextInput
               placeholder="Password"
               placeholderTextColor="#a1a1aa"
               secureTextEntry
-              autoComplete="password"
+              autoComplete="new-password"
               value={password}
               onChangeText={setPassword}
               className="rounded-xl border border-zinc-200 bg-white px-4 py-3 text-zinc-900 dark:border-zinc-700 dark:bg-zinc-900 dark:text-white"
@@ -146,9 +145,11 @@ export default function LoginScreen() {
             )}
           </View>
 
+          <View className="mt-6" nativeID="clerk-captcha" />
+
           <View className="mt-8">
             <GoldGradientButton
-              title="Sign in"
+              title="Sign up"
               onPress={handleSubmit}
               disabled={isBusy || !emailAddress || !password}
             />
@@ -159,11 +160,11 @@ export default function LoginScreen() {
 
           <View className="mt-8 flex-row flex-wrap items-center justify-center gap-1">
             <IvyText className="text-center text-sm text-zinc-600 dark:text-zinc-400">
-              Need an account?
+              Already have an account?
             </IvyText>
-            <Link href="/sign-up" asChild>
+            <Link href="/login" asChild>
               <Pressable>
-                <IvyText className="text-sm text-amber-700 underline dark:text-amber-400">Sign up</IvyText>
+                <IvyText className="text-sm text-amber-700 underline dark:text-amber-400">Sign in</IvyText>
               </Pressable>
             </Link>
           </View>

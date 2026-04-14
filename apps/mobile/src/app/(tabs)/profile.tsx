@@ -1,3 +1,4 @@
+import { useClerk, useUser } from '@clerk/expo';
 import { router } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
@@ -8,7 +9,6 @@ import { GoldGradientButton } from '@/components/ivy/gold-gradient-button';
 import { IvyCard } from '@/components/ivy/ivy-card';
 import { IvyHeading } from '@/components/ivy/ivy-heading';
 import { IvyText } from '@/components/ivy/ivy-text';
-import { useAuth } from '@/contexts/auth-context';
 import { getThemePreference, setThemePreference, type ThemePreference } from '@/lib/theme-preference';
 
 const THEME_OPTIONS: { key: ThemePreference; label: string }[] = [
@@ -18,7 +18,8 @@ const THEME_OPTIONS: { key: ThemePreference; label: string }[] = [
 ];
 
 export default function ProfileScreen() {
-  const { signOut } = useAuth();
+  const { signOut } = useClerk();
+  const { user } = useUser();
   const { hasAdaptiveThemes } = useUniwind();
   const [storedPref, setStoredPref] = useState<ThemePreference>('light');
 
@@ -46,7 +47,7 @@ export default function ProfileScreen() {
         <View className="py-4">
           <IvyHeading className="text-2xl text-zinc-900 dark:text-white">Profile</IvyHeading>
           <IvyText className="mt-1 text-zinc-600 dark:text-zinc-400">
-            Member · Ivy Inc. Soarers
+            {user?.primaryEmailAddress?.emailAddress ?? 'Member'} · Ivy Inc. Soarers
           </IvyText>
         </View>
 
@@ -55,7 +56,7 @@ export default function ProfileScreen() {
             Account
           </IvyText>
           <IvyText className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
-            Placeholder profile — connect Clerk later for name, avatar, and membership tier.
+            Signed in with Clerk. Name and avatar can be extended from the user profile as you grow the app.
           </IvyText>
         </IvyCard>
 

@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 
-import { TRPCProvider } from '@/lib/trpc-provider';
+import { AppProviders } from '@/app/providers';
 
 import './globals.css';
 
@@ -17,7 +17,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <TRPCProvider>{children}</TRPCProvider>
+        <AppProviders>{children}</AppProviders>
       </body>
     </html>
   );

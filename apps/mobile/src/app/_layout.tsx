@@ -1,3 +1,5 @@
+import { ClerkProvider, useAuth } from '@clerk/expo';
+import { tokenCache } from '@clerk/expo/token-cache';
 import { ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
@@ -18,7 +20,6 @@ import 'react-native-reanimated';
 
 import '../global.css';
 
-import { AuthProvider, useAuth } from '@/contexts/auth-context';
 import { IvyDarkNavigationTheme, IvyLightNavigationTheme } from '@/constants/navigation-theme';
 import { useIvyColorScheme } from '@/hooks/use-ivy-color-scheme';
 import { TrpcProvider } from '@/lib/trpc';
@@ -26,8 +27,18 @@ import { loadStoredThemePreference } from '@/lib/theme-preference';
 
 SplashScreen.preventAutoHideAsync();
 
+function getClerkPublishableKey(): string {
+  const key = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY;
+  if (!key) {
+    throw new Error(
+      'Missing EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY. Add it to .env or .env.local for the mobile app.',
+    );
+  }
+  return key;
+}
+
 function RootLayoutNav() {
-  const { isReady: authReady } = useAuth();
+  const { isLoaded: authReady } = useAuth();
   const scheme = useIvyColorScheme();
   const [themeReady, setThemeReady] = useState(false);
 
@@ -57,11 +68,6 @@ function RootLayoutNav() {
     return null;
   }
 
-  /*
-   * `userInterfaceStyle: "automatic"` in app.json follows the device; `Uniwind.setTheme` and
-   * Appearance drive the effective scheme. To force a light native root always, set it to "light"
-   * (tradeoff: system dark mode no longer applies until you handle it in-app only).
-   */
   const navigationTheme =
     scheme === 'dark' ? IvyDarkNavigationTheme : IvyLightNavigationTheme;
 
@@ -83,12 +89,12 @@ function RootLayoutNav() {
 
 export default function RootLayout() {
   return (
-    <TrpcProvider>
-      <SafeAreaProvider>
-        <AuthProvider>
+    <ClerkProvider publishableKey={getClerkPublishableKey()} tokenCache={tokenCache}>
+      <TrpcProvider>
+        <SafeAreaProvider>
           <RootLayoutNav />
-        </AuthProvider>
-      </SafeAreaProvider>
-    </TrpcProvider>
+        </SafeAreaProvider>
+      </TrpcProvider>
+    </ClerkProvider>
   );
 }
