@@ -30,10 +30,12 @@ export default function SignUpScreen() {
     if (!error) return 'Something went wrong. Please try again.';
     if (typeof error === 'object' && error !== null) {
       const e = error as Record<string, unknown>;
-      const firstClerkError = Array.isArray(e.errors) && e.errors.length > 0
-        ? (e.errors[0] as Record<string, unknown>)
-        : null;
-      if (firstClerkError?.longMessage) return String(firstClerkError.longMessage);
+      const firstClerkError =
+        Array.isArray(e.errors) && e.errors.length > 0
+          ? (e.errors[0] as Record<string, unknown>)
+          : null;
+      if (firstClerkError?.longMessage)
+        return String(firstClerkError.longMessage);
       if (firstClerkError?.message) return String(firstClerkError.message);
       if (typeof e.message === 'string') return e.message;
     }
@@ -81,9 +83,14 @@ export default function SignUpScreen() {
     signUp.missingFields.length === 0
   ) {
     return (
-      <SafeAreaView style={{ flex: 1 }} edges={['top', 'left', 'right', 'bottom']}>
+      <SafeAreaView
+        style={{ flex: 1 }}
+        edges={['top', 'left', 'right', 'bottom']}
+      >
         <View className="flex-1 bg-zinc-50 px-6 pt-8 dark:bg-zinc-950">
-          <IvyHeading className="text-2xl text-amber-700 dark:text-amber-400">Verify your email</IvyHeading>
+          <IvyHeading className="text-2xl text-amber-700 dark:text-amber-400">
+            Verify your email
+          </IvyHeading>
           <IvyText className="mt-2 text-zinc-600 dark:text-zinc-400">
             Enter the code we sent to {emailAddress || 'your inbox'}.
           </IvyText>
@@ -101,26 +108,37 @@ export default function SignUpScreen() {
             </IvyText>
           )}
           <View className="mt-6">
-            <GoldGradientButton title="Verify" onPress={handleVerify} disabled={isBusy || !code} />
+            <GoldGradientButton
+              title="Verify"
+              onPress={handleVerify}
+              disabled={isBusy || !code}
+            />
           </View>
-          <Pressable className="mt-4 items-center" onPress={() => signUp.verifications.sendEmailCode()}>
-            <IvyText className="text-sm text-amber-700 underline dark:text-amber-400">Resend code</IvyText>
+          <Pressable
+            className="mt-4 items-center"
+            onPress={() => signUp.verifications.sendEmailCode()}
+          >
+            <IvyText className="text-sm text-amber-700 underline dark:text-amber-400">
+              Resend code
+            </IvyText>
           </Pressable>
-          {isBusy ? (
-            <ActivityIndicator className="mt-4" />
-          ) : null}
+          {isBusy ? <ActivityIndicator className="mt-4" /> : null}
         </View>
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView style={{ flex: 1 }} edges={['top', 'left', 'right', 'bottom']}>
+    <SafeAreaView
+      style={{ flex: 1 }}
+      edges={['top', 'left', 'right', 'bottom']}
+    >
       <View className="flex-1 bg-zinc-50 dark:bg-zinc-950" style={{ flex: 1 }}>
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : undefined}
           style={{ flex: 1 }}
-          className="justify-center px-6">
+          className="justify-center px-6"
+        >
           <View className="mb-10 items-center">
             <IvyHeading className="text-center text-3xl text-amber-700 dark:text-amber-400">
               IVY INC. SOARERS
@@ -163,7 +181,10 @@ export default function SignUpScreen() {
             />
             {errors.fields?.emailAddress != null && (
               <IvyText className="text-sm text-red-600 dark:text-red-400">
-                {String(errors.fields.emailAddress.message ?? errors.fields.emailAddress)}
+                {String(
+                  errors.fields.emailAddress.message ??
+                    errors.fields.emailAddress,
+                )}
               </IvyText>
             )}
             <TextInput
@@ -177,7 +198,9 @@ export default function SignUpScreen() {
             />
             {errors.fields?.password != null && (
               <IvyText className="text-sm text-red-600 dark:text-red-400">
-                {String(errors.fields.password.message ?? errors.fields.password)}
+                {String(
+                  errors.fields.password.message ?? errors.fields.password,
+                )}
               </IvyText>
             )}
           </View>
@@ -185,19 +208,21 @@ export default function SignUpScreen() {
           <View className="mt-6" nativeID="clerk-captcha" />
 
           {globalError != null && (
-            <IvyText className="mt-3 text-sm text-red-600 dark:text-red-400">{globalError}</IvyText>
+            <IvyText className="mt-3 text-sm text-red-600 dark:text-red-400">
+              {globalError}
+            </IvyText>
           )}
 
           <View className="mt-4">
             <GoldGradientButton
               title="Sign up"
               onPress={handleSubmit}
-              disabled={isBusy || !firstName || !lastName || !emailAddress || !password}
+              disabled={
+                isBusy || !firstName || !lastName || !emailAddress || !password
+              }
             />
           </View>
-          {isBusy ? (
-            <ActivityIndicator className="mt-4" />
-          ) : null}
+          {isBusy ? <ActivityIndicator className="mt-4" /> : null}
 
           <View className="mt-8 flex-row flex-wrap items-center justify-center gap-1">
             <IvyText className="text-center text-sm text-zinc-600 dark:text-zinc-400">
@@ -205,7 +230,9 @@ export default function SignUpScreen() {
             </IvyText>
             <Link href="/login" asChild>
               <Pressable>
-                <IvyText className="text-sm text-amber-700 underline dark:text-amber-400">Sign in</IvyText>
+                <IvyText className="text-sm text-amber-700 underline dark:text-amber-400">
+                  Sign in
+                </IvyText>
               </Pressable>
             </Link>
           </View>

@@ -1,8 +1,13 @@
 import { useState } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, useWindowDimensions, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Pressable,
+  ScrollView,
+  useWindowDimensions,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { CategoryChips } from '@/components/ivy/category-chips';
 import { FeaturedYoutubePlayer } from '@/components/ivy/featured-youtube-player';
 import { IvyText } from '@/components/ivy/ivy-text';
 import { ScreenHeader } from '@/components/ivy/screen-header';
@@ -14,7 +19,8 @@ import { trpc } from '@/lib/trpc';
 export default function WatchScreen() {
   const { width } = useWindowDimensions();
   const [category, setCategory] = useState<string>(watchCategories[0]);
-  const { data, isLoading, isError, error } = trpc.youtube.playlistVideos.useQuery();
+  const { data, isLoading, isError, error } =
+    trpc.youtube.playlistVideos.useQuery();
   const gap = 12;
   const colWidth = (width - 32 - gap) / 2;
 
@@ -24,31 +30,30 @@ export default function WatchScreen() {
 
   return (
     <SafeAreaView style={{ flex: 1 }} edges={['top', 'left', 'right']}>
+      <ScreenHeader
+        title="Watch"
+        left={
+          <Pressable className="p-2" hitSlop={8}>
+            <IconSymbol name="magnifyingglass" size={22} color="#b45309" />
+          </Pressable>
+        }
+        right={
+          <Pressable className="p-2" hitSlop={8}>
+            <IconSymbol name="line.3.horizontal" size={22} color="#b45309" />
+          </Pressable>
+        }
+      />
       <ScrollView
         showsVerticalScrollIndicator={false}
         nestedScrollEnabled
         className="flex-1 bg-zinc-50 dark:bg-zinc-950"
         style={{ flex: 1, paddingHorizontal: 16, paddingBottom: 8 }}
       >
-        <ScreenHeader
-          title="Watch"
-          left={
-            <Pressable className="p-2" hitSlop={8}>
-              <IconSymbol name="magnifyingglass" size={22} color="#b45309" />
-            </Pressable>
-          }
-          right={
-            <Pressable className="p-2" hitSlop={8}>
-              <IconSymbol name="line.3.horizontal" size={22} color="#b45309" />
-            </Pressable>
-          }
-        />
-
-        <CategoryChips
+        {/* <CategoryChips
           categories={watchCategories}
           selected={category}
           onSelect={(c) => setCategory(c)}
-        />
+        /> */}
 
         <IvyText className="mb-2 text-sm font-semibold text-zinc-900 dark:text-white">
           Featured

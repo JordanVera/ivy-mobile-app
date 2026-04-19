@@ -11,30 +11,25 @@ import { vaultFeedPost, vaultResources } from '@/data/mock/content';
 export default function VaultScreen() {
   return (
     <SafeAreaView style={{ flex: 1 }} edges={['top', 'left', 'right']}>
+      <ScreenHeader
+        title="Vault"
+        left={
+          <Pressable className="p-2" hitSlop={8}>
+            <IconSymbol name="icloud.and.arrow.up" size={22} color="#b45309" />
+          </Pressable>
+        }
+        right={
+          <Pressable className="p-2" hitSlop={8}>
+            <IconSymbol name="magnifyingglass" size={22} color="#b45309" />
+          </Pressable>
+        }
+      />
       <View className="flex-1 bg-zinc-50 dark:bg-zinc-950" style={{ flex: 1 }}>
         <ScrollView
           style={{ flex: 1 }}
           contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 32 }}
           showsVerticalScrollIndicator={false}
         >
-          <ScreenHeader
-            title="Vault"
-            left={
-              <Pressable className="p-2" hitSlop={8}>
-                <IconSymbol
-                  name="icloud.and.arrow.up"
-                  size={22}
-                  color="#b45309"
-                />
-              </Pressable>
-            }
-            right={
-              <Pressable className="p-2" hitSlop={8}>
-                <IconSymbol name="magnifyingglass" size={22} color="#b45309" />
-              </Pressable>
-            }
-          />
-
           <IvyText className="mb-3 text-sm font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
             Resources
           </IvyText>
