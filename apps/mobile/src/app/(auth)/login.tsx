@@ -21,14 +21,33 @@ export default function LoginScreen() {
   const [emailAddress, setEmailAddress] = useState('');
   const [password, setPassword] = useState('');
   const [code, setCode] = useState('');
+  const [globalError, setGlobalError] = useState<string | null>(null);
   const isBusy = fetchStatus === 'fetching';
 
+  const extractErrorMessage = (error: unknown): string => {
+    if (!error) return 'Something went wrong. Please try again.';
+    if (typeof error === 'object' && error !== null) {
+      const e = error as Record<string, unknown>;
+      const firstClerkError =
+        Array.isArray(e.errors) && e.errors.length > 0
+          ? (e.errors[0] as Record<string, unknown>)
+          : null;
+      if (firstClerkError?.longMessage)
+        return String(firstClerkError.longMessage);
+      if (firstClerkError?.message) return String(firstClerkError.message);
+      if (typeof e.message === 'string') return e.message;
+    }
+    return 'Something went wrong. Please try again.';
+  };
+
   const handleSubmit = async () => {
+    setGlobalError(null);
     const { error } = await signIn.password({
       emailAddress,
       password,
     });
     if (error) {
+      setGlobalError(extractErrorMessage(error));
       return;
     }
 
@@ -41,7 +60,10 @@ export default function LoginScreen() {
           router.replace('/home' as Href);
         },
       });
-    } else if (signIn.status === 'needs_client_trust') {
+    } else if (
+      signIn.status === 'needs_second_factor' ||
+      signIn.status === 'needs_client_trust'
+    ) {
       const emailCodeFactor = signIn.supportedSecondFactors?.find(
         (factor) => factor.strategy === 'email_code',
       );
@@ -66,11 +88,16 @@ export default function LoginScreen() {
     }
   };
 
-  if (signIn.status === 'needs_client_trust') {
+  if (signIn.status === 'needs_second_factor' || signIn.status === 'needs_client_trust') {
     return (
-      <SafeAreaView style={{ flex: 1 }} edges={['top', 'left', 'right', 'bottom']}>
+      <SafeAreaView
+        style={{ flex: 1 }}
+        edges={['top', 'left', 'right', 'bottom']}
+      >
         <View className="flex-1 bg-zinc-50 px-6 pt-8 dark:bg-zinc-950">
-          <IvyHeading className="text-2xl text-amber-700 dark:text-amber-400">Verify your account</IvyHeading>
+          <IvyHeading className="text-2xl text-amber-700 dark:text-amber-400">
+            Verify your account
+          </IvyHeading>
           <IvyText className="mt-2 text-zinc-600 dark:text-zinc-400">
             Enter the code we sent to your email.
           </IvyText>
@@ -88,23 +115,29 @@ export default function LoginScreen() {
             </IvyText>
           )}
           <View className="mt-6">
-            <GoldGradientButton title="Verify" onPress={handleVerify} disabled={isBusy || !code} />
+            <GoldGradientButton
+              title="Verify"
+              onPress={handleVerify}
+              disabled={isBusy || !code}
+            />
           </View>
-          {isBusy ? (
-            <ActivityIndicator className="mt-4" />
-          ) : null}
+          {isBusy ? <ActivityIndicator className="mt-4" /> : null}
         </View>
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView style={{ flex: 1 }} edges={['top', 'left', 'right', 'bottom']}>
+    <SafeAreaView
+      style={{ flex: 1 }}
+      edges={['top', 'left', 'right', 'bottom']}
+    >
       <View className="flex-1 bg-zinc-50 dark:bg-zinc-950" style={{ flex: 1 }}>
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : undefined}
           style={{ flex: 1 }}
-          className="justify-center px-6">
+          className="justify-center px-6"
+        >
           <View className="mb-10 items-center">
             <IvyHeading className="text-center text-3xl text-amber-700 dark:text-amber-400">
               IVY INC. SOARERS
@@ -127,7 +160,9 @@ export default function LoginScreen() {
             />
             {errors.fields?.identifier != null && (
               <IvyText className="text-sm text-red-600 dark:text-red-400">
-                {String(errors.fields.identifier.message ?? errors.fields.identifier)}
+                {String(
+                  errors.fields.identifier.message ?? errors.fields.identifier,
+                )}
               </IvyText>
             )}
             <TextInput
@@ -141,21 +176,27 @@ export default function LoginScreen() {
             />
             {errors.fields?.password != null && (
               <IvyText className="text-sm text-red-600 dark:text-red-400">
-                {String(errors.fields.password.message ?? errors.fields.password)}
+                {String(
+                  errors.fields.password.message ?? errors.fields.password,
+                )}
               </IvyText>
             )}
           </View>
 
-          <View className="mt-8">
+          {globalError != null && (
+            <IvyText className="mt-4 text-sm text-red-600 dark:text-red-400">
+              {globalError}
+            </IvyText>
+          )}
+
+          <View className="mt-4">
             <GoldGradientButton
               title="Sign in"
               onPress={handleSubmit}
               disabled={isBusy || !emailAddress || !password}
             />
           </View>
-          {isBusy ? (
-            <ActivityIndicator className="mt-4" />
-          ) : null}
+          {isBusy ? <ActivityIndicator className="mt-4" /> : null}
 
           <View className="mt-8 flex-row flex-wrap items-center justify-center gap-1">
             <IvyText className="text-center text-sm text-zinc-600 dark:text-zinc-400">
@@ -163,7 +204,9 @@ export default function LoginScreen() {
             </IvyText>
             <Link href="/sign-up" asChild>
               <Pressable>
-                <IvyText className="text-sm text-amber-700 underline dark:text-amber-400">Sign up</IvyText>
+                <IvyText className="text-sm text-amber-700 underline dark:text-amber-400">
+                  Sign up
+                </IvyText>
               </Pressable>
             </Link>
           </View>

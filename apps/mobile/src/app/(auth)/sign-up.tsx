@@ -19,26 +19,46 @@ export default function SignUpScreen() {
   const { signUp, errors, fetchStatus } = useSignUp();
   const { isSignedIn } = useAuth();
   const router = useRouter();
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [emailAddress, setEmailAddress] = useState('');
   const [password, setPassword] = useState('');
   const [code, setCode] = useState('');
+  const [globalError, setGlobalError] = useState<string | null>(null);
   const isBusy = fetchStatus === 'fetching';
 
+  const extractErrorMessage = (error: unknown): string => {
+    if (!error) return 'Something went wrong. Please try again.';
+    if (typeof error === 'object' && error !== null) {
+      const e = error as Record<string, unknown>;
+      const firstClerkError = Array.isArray(e.errors) && e.errors.length > 0
+        ? (e.errors[0] as Record<string, unknown>)
+        : null;
+      if (firstClerkError?.longMessage) return String(firstClerkError.longMessage);
+      if (firstClerkError?.message) return String(firstClerkError.message);
+      if (typeof e.message === 'string') return e.message;
+    }
+    return 'Something went wrong. Please try again.';
+  };
+
   const handleSubmit = async () => {
+    setGlobalError(null);
     const { error } = await signUp.password({
+      firstName,
+      lastName,
       emailAddress,
       password,
     });
     if (error) {
+      setGlobalError(extractErrorMessage(error));
       return;
     }
 
-    if (!error) {
-      await signUp.verifications.sendEmailCode();
-    }
+    await signUp.verifications.sendEmailCode();
   };
 
   const handleVerify = async () => {
+    setGlobalError(null);
     await signUp.verifications.verifyEmailCode({
       code,
     });
@@ -114,6 +134,26 @@ export default function SignUpScreen() {
           </View>
 
           <View className="gap-3">
+            <View className="flex-row gap-3">
+              <TextInput
+                placeholder="First name"
+                placeholderTextColor="#a1a1aa"
+                autoCapitalize="words"
+                autoComplete="given-name"
+                value={firstName}
+                onChangeText={setFirstName}
+                className="flex-1 rounded-xl border border-zinc-200 bg-white px-4 py-3 text-zinc-900 dark:border-zinc-700 dark:bg-zinc-900 dark:text-white"
+              />
+              <TextInput
+                placeholder="Last name"
+                placeholderTextColor="#a1a1aa"
+                autoCapitalize="words"
+                autoComplete="family-name"
+                value={lastName}
+                onChangeText={setLastName}
+                className="flex-1 rounded-xl border border-zinc-200 bg-white px-4 py-3 text-zinc-900 dark:border-zinc-700 dark:bg-zinc-900 dark:text-white"
+              />
+            </View>
             <TextInput
               placeholder="Email"
               placeholderTextColor="#a1a1aa"
@@ -147,11 +187,15 @@ export default function SignUpScreen() {
 
           <View className="mt-6" nativeID="clerk-captcha" />
 
-          <View className="mt-8">
+          {globalError != null && (
+            <IvyText className="mt-3 text-sm text-red-600 dark:text-red-400">{globalError}</IvyText>
+          )}
+
+          <View className="mt-4">
             <GoldGradientButton
               title="Sign up"
               onPress={handleSubmit}
-              disabled={isBusy || !emailAddress || !password}
+              disabled={isBusy || !firstName || !lastName || !emailAddress || !password}
             />
           </View>
           {isBusy ? (
