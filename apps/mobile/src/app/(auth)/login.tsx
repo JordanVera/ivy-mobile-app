@@ -1,5 +1,5 @@
 import { useSignIn } from '@clerk/expo';
-import { type Href, Link, useRouter } from 'expo-router';
+import { Link } from 'expo-router';
 import { useState } from 'react';
 import {
   ActivityIndicator,
@@ -17,7 +17,6 @@ import { IvyText } from '@/components/ivy/ivy-text';
 
 export default function LoginScreen() {
   const { signIn, errors, fetchStatus } = useSignIn();
-  const router = useRouter();
   const [emailAddress, setEmailAddress] = useState('');
   const [password, setPassword] = useState('');
   const [code, setCode] = useState('');
@@ -53,11 +52,9 @@ export default function LoginScreen() {
 
     if (signIn.status === 'complete') {
       await signIn.finalize({
-        navigate: ({ session }) => {
-          if (session?.currentTask) {
-            return;
-          }
-          router.replace('/home' as Href);
+        navigate: () => {
+          // Auth layout's isSignedIn guard handles the redirect once the
+          // session is established — navigating here races the tab navigator.
         },
       });
     } else if (
@@ -78,11 +75,8 @@ export default function LoginScreen() {
 
     if (signIn.status === 'complete') {
       await signIn.finalize({
-        navigate: ({ session }) => {
-          if (session?.currentTask) {
-            return;
-          }
-          router.replace('/home' as Href);
+        navigate: () => {
+          // Auth layout's isSignedIn guard handles the redirect.
         },
       });
     }
