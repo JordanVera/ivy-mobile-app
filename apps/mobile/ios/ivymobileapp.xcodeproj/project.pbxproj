@@ -15,6 +15,8 @@
 		D4186BA62E4E4055A56FA0FF /* ClerkViewFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50EA96E879EC4C0ABBA84E0A /* ClerkViewFactory.swift */; };
 		DD6EBF270FB5EEE746264683 /* libPods-ivymobileapp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 776C7D2E323D8CCDD3A1201A /* libPods-ivymobileapp.a */; };
 		F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F11748412D0307B40044C1D9 /* AppDelegate.swift */; };
+		F65109572F94556800C54EF3 /* ClerkKit in Frameworks */ = {isa = PBXBuildFile; productRef = E77591A21068448A866A6335 /* ClerkKit */; };
+		F65109582F94556800C54EF3 /* ClerkKitUI in Frameworks */ = {isa = PBXBuildFile; productRef = FE22E866017240E384901DF7 /* ClerkKitUI */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -23,7 +25,7 @@
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = ivymobileapp/Info.plist; sourceTree = "<group>"; };
 		4551DBDBCFAAB3F41709F08C /* Pods-ivymobileapp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ivymobileapp.release.xcconfig"; path = "Target Support Files/Pods-ivymobileapp/Pods-ivymobileapp.release.xcconfig"; sourceTree = "<group>"; };
 		50EA96E879EC4C0ABBA84E0A /* ClerkViewFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ClerkViewFactory.swift; path = ivymobileapp/ClerkViewFactory.swift; sourceTree = "<group>"; };
-		74BA32E4663413CBBFA52B36 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = ivymobileapp/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		74BA32E4663413CBBFA52B36 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = ivymobileapp/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		776C7D2E323D8CCDD3A1201A /* libPods-ivymobileapp.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-ivymobileapp.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		8E9477A02C36C390FAD748A7 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-ivymobileapp/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
 		A51F4758D1F0D25729A45E73 /* Pods-ivymobileapp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ivymobileapp.debug.xcconfig"; path = "Target Support Files/Pods-ivymobileapp/Pods-ivymobileapp.debug.xcconfig"; sourceTree = "<group>"; };
@@ -39,6 +41,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F65109582F94556800C54EF3 /* ClerkKitUI in Frameworks */,
+				F65109572F94556800C54EF3 /* ClerkKit in Frameworks */,
 				DD6EBF270FB5EEE746264683 /* libPods-ivymobileapp.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -131,7 +135,6 @@
 				A51F4758D1F0D25729A45E73 /* Pods-ivymobileapp.debug.xcconfig */,
 				4551DBDBCFAAB3F41709F08C /* Pods-ivymobileapp.release.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};
@@ -284,7 +287,6 @@
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-ivymobileapp/Pods-ivymobileapp-resources.sh",
 				"${PODS_CONFIGURATION_BUILD_DIR}/AppAuth/AppAuthCore_Privacy.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/EXApplication/ExpoApplication_privacy.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/EXConstants/EXConstants.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/EXConstants/ExpoConstants_privacy.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/ExpoFileSystem/ExpoFileSystem_privacy.bundle",
@@ -304,7 +306,6 @@
 			name = "[CP] Copy Pods Resources";
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/AppAuthCore_Privacy.bundle",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/ExpoApplication_privacy.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/EXConstants.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/ExpoConstants_privacy.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/ExpoFileSystem_privacy.bundle",
@@ -372,6 +373,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = ivymobileapp/ivymobileapp.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = UZ69SNY6D4;
 				ENABLE_BITCODE = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
@@ -408,6 +410,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = ivymobileapp/ivymobileapp.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = UZ69SNY6D4;
 				INFOPLIST_FILE = ivymobileapp/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -485,7 +488,7 @@
 				LIBRARY_SEARCH_PATHS = "$(SDKROOT)/usr/lib/swift\"$(inherited)\"";
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
-				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
+				REACT_NATIVE_PATH = "${PODS_ROOT}/../../../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) DEBUG";
 				SWIFT_ENABLE_EXPLICIT_MODULES = NO;
@@ -540,7 +543,7 @@
 				);
 				LIBRARY_SEARCH_PATHS = "$(SDKROOT)/usr/lib/swift\"$(inherited)\"";
 				MTL_ENABLE_DEBUG_INFO = NO;
-				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
+				REACT_NATIVE_PATH = "${PODS_ROOT}/../../../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				SWIFT_ENABLE_EXPLICIT_MODULES = NO;
 				USE_HERMES = true;

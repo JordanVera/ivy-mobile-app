@@ -6,5 +6,9 @@
     "./base.json": "./base.json",
     "./nextjs.json": "./nextjs.json",
     "./react-native-library.json": "./react-native-library.json"
+  },
+  "dependencies": {
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
   }
 }
