@@ -80,7 +80,7 @@ export function GoogleSignInButton({
           <>
             <Image
               source={require('@/assets/images/google-g-icon.png')}
-              className="w-8 h-8"
+              className="w-7 h-7"
             />
             <IvyText className="text-base font-bold text-black dark:text-white">
               Continue with Google

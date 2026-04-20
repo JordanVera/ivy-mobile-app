@@ -1,27 +1,37 @@
 import { useAuth, useSignUp } from '@clerk/expo';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { Link } from 'expo-router';
 import { useState } from 'react';
 import {
   ActivityIndicator,
+  Image,
   KeyboardAvoidingView,
   Platform,
   Pressable,
+  ScrollView,
   TextInput,
+  useColorScheme,
   View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import {
   AuthOrDivider,
   GoogleSignInButton,
 } from '@/components/auth/google-sign-in-button';
-import { GoldGradientButton } from '@/components/ivy/gold-gradient-button';
-import { IvyHeading } from '@/components/ivy/ivy-heading';
 import { IvyText } from '@/components/ivy/ivy-text';
+
+/**
+ * Matches the auth shell used on `login.tsx` (same layout as web Clerk sign-in /
+ * sign-up: hero strip + elevated card, social + email form).
+ */
+const HERO_IMAGE = require('@/assets/images/nebula.jpg');
 
 export default function SignUpScreen() {
   const { signUp, errors, fetchStatus } = useSignUp();
   const { isSignedIn } = useAuth();
+  const insets = useSafeAreaInsets();
+  const colorScheme = useColorScheme();
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [emailAddress, setEmailAddress] = useState('');
@@ -29,6 +39,11 @@ export default function SignUpScreen() {
   const [code, setCode] = useState('');
   const [globalError, setGlobalError] = useState<string | null>(null);
   const isBusy = fetchStatus === 'fetching';
+
+  const logoSource =
+    colorScheme === 'dark'
+      ? require('@/assets/images/ivy-soarers-logo-white.png')
+      : require('@/assets/images/ivy-soarers-logo-black.png');
 
   const extractErrorMessage = (error: unknown): string => {
     if (!error) return 'Something went wrong. Please try again.';
@@ -77,6 +92,10 @@ export default function SignUpScreen() {
     }
   };
 
+  const signUpDisabled =
+    isBusy || !firstName || !lastName || !emailAddress || !password;
+  const verifyDisabled = isBusy || !code;
+
   if (signUp.status === 'complete' || isSignedIn) {
     return null;
   }
@@ -87,164 +106,289 @@ export default function SignUpScreen() {
     signUp.missingFields.length === 0
   ) {
     return (
-      <SafeAreaView
-        style={{ flex: 1 }}
-        edges={['top', 'left', 'right', 'bottom']}
-      >
-        <View className="flex-1 bg-zinc-50 px-6 pt-8 dark:bg-zinc-950">
-          <IvyHeading className="text-2xl text-amber-700 dark:text-amber-400">
-            Verify your email
-          </IvyHeading>
-          <IvyText className="mt-2 text-zinc-600 dark:text-zinc-400">
-            Enter the code we sent to {emailAddress || 'your inbox'}.
-          </IvyText>
-          <TextInput
-            value={code}
-            placeholder="Verification code"
-            placeholderTextColor="#a1a1aa"
-            keyboardType="number-pad"
-            className="mt-6 rounded-xl border border-zinc-200 bg-white px-4 py-3 text-zinc-900 dark:border-zinc-700 dark:bg-zinc-900 dark:text-white"
-            onChangeText={setCode}
-          />
-          {errors.fields?.code != null && (
-            <IvyText className="mt-2 text-sm text-red-600 dark:text-red-400">
-              {String(errors.fields.code.message ?? errors.fields.code)}
-            </IvyText>
-          )}
-          <View className="mt-6">
-            <GoldGradientButton
-              title="Verify"
-              onPress={handleVerify}
-              disabled={isBusy || !code}
-            />
+      <View className="flex-1 bg-transparent">
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          className="flex-1"
+        >
+          <View className="flex-1">
+            <View className="min-h-[108px] flex-[2] overflow-hidden">
+              <Image
+                source={HERO_IMAGE}
+                className="absolute inset-0 h-full w-full"
+                resizeMode="cover"
+              />
+              <View className="flex-1 justify-end bg-pink-700/20 px-6 pb-6">
+                <IvyText className="text-2xl font-bold leading-tight text-white">
+                  Verify your email to finish setting up your account.
+                </IvyText>
+              </View>
+            </View>
+
+            <View className="min-h-0 flex-[8] -mt-[18px] rounded-t-[32px] bg-white pt-2 shadow-[0_-4px_12px_rgb(0_0_0_/_0.08)] elevation-[8] dark:bg-zinc-950">
+              <ScrollView
+                className="flex-1"
+                contentContainerClassName="flex-grow px-6 pt-5"
+                contentContainerStyle={{ paddingBottom: insets.bottom + 28 }}
+                keyboardShouldPersistTaps="handled"
+                showsVerticalScrollIndicator={false}
+              >
+                <View className="mb-6 items-center">
+                  <Image
+                    source={logoSource}
+                    className="h-12 w-[200px]"
+                    resizeMode="contain"
+                  />
+                </View>
+
+                <IvyText className="text-2xl font-bold text-zinc-900 dark:text-white">
+                  Verify your email
+                </IvyText>
+                <IvyText className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
+                  Enter the code we sent to {emailAddress || 'your inbox'}.
+                </IvyText>
+
+                <View className="mt-6 gap-3">
+                  <View className="flex-row items-center gap-3 rounded-full bg-zinc-100 px-4 py-1 dark:bg-zinc-900">
+                    <MaterialCommunityIcons
+                      name="numeric"
+                      size={22}
+                      color="#71717a"
+                    />
+                    <TextInput
+                      value={code}
+                      placeholder="Verification code"
+                      placeholderTextColor="#a1a1aa"
+                      keyboardType="number-pad"
+                      onChangeText={setCode}
+                      className="min-h-[48px] flex-1 py-3 text-base text-zinc-900 dark:text-white"
+                    />
+                  </View>
+                  {errors.fields?.code != null && (
+                    <IvyText className="text-sm text-red-600 dark:text-red-400">
+                      {String(errors.fields.code.message ?? errors.fields.code)}
+                    </IvyText>
+                  )}
+                </View>
+
+                {globalError != null && (
+                  <IvyText className="mt-4 text-sm text-red-600 dark:text-red-400">
+                    {globalError}
+                  </IvyText>
+                )}
+
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel="Verify email"
+                  disabled={verifyDisabled}
+                  onPress={handleVerify}
+                  className={`mt-6 items-center rounded-full bg-pink-600 py-4 active:opacity-90 ${
+                    verifyDisabled ? 'opacity-50' : ''
+                  }`}
+                >
+                  <IvyText className="text-base font-semibold text-white">
+                    Verify
+                  </IvyText>
+                </Pressable>
+                {isBusy ? (
+                  <ActivityIndicator className="mt-4" color="#db2777" />
+                ) : null}
+
+                <Pressable
+                  className="mt-4 items-center active:opacity-70"
+                  onPress={() => signUp.verifications.sendEmailCode()}
+                >
+                  <IvyText className="text-sm font-semibold text-pink-600 dark:text-pink-400">
+                    Resend code
+                  </IvyText>
+                </Pressable>
+              </ScrollView>
+            </View>
           </View>
-          <Pressable
-            className="mt-4 items-center"
-            onPress={() => signUp.verifications.sendEmailCode()}
-          >
-            <IvyText className="text-sm text-amber-700 underline dark:text-amber-400">
-              Resend code
-            </IvyText>
-          </Pressable>
-          {isBusy ? <ActivityIndicator className="mt-4" /> : null}
-        </View>
-      </SafeAreaView>
+        </KeyboardAvoidingView>
+      </View>
     );
   }
 
   return (
-    <SafeAreaView
-      style={{ flex: 1 }}
-      edges={['top', 'left', 'right', 'bottom']}
-    >
-      <View className="flex-1 bg-zinc-50 dark:bg-zinc-950" style={{ flex: 1 }}>
-        <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-          style={{ flex: 1 }}
-          className="justify-center px-6"
-        >
-          <View className="mb-10 items-center">
-            <IvyHeading className="text-center text-3xl text-amber-700 dark:text-amber-400">
-              IVY INC. SOARERS
-            </IvyHeading>
-            <IvyText className="mt-2 text-center text-zinc-600 dark:text-zinc-400">
-              Create your account
-            </IvyText>
+    <View className="flex-1 bg-transparent">
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        className="flex-1"
+      >
+        <View className="flex-1">
+          <View className="min-h-[108px] flex-[2] overflow-hidden">
+            <Image
+              source={HERO_IMAGE}
+              className="absolute inset-0 h-full w-full"
+              resizeMode="cover"
+            />
+            <View className="flex-1 justify-end bg-pink-700/20 px-6 pb-6"></View>
           </View>
 
-          <GoogleSignInButton disabled={isBusy} />
-          <AuthOrDivider />
+          <View className="min-h-0 flex-[8] -mt-[18px] rounded-t-[32px] bg-white pt-2 shadow-[0_-4px_12px_rgb(0_0_0_/_0.08)] elevation-[8] dark:bg-zinc-950">
+            <ScrollView
+              className="flex-1"
+              contentContainerClassName="flex-grow px-6 pt-5"
+              contentContainerStyle={{ paddingBottom: insets.bottom + 28 }}
+              keyboardShouldPersistTaps="handled"
+              showsVerticalScrollIndicator={false}
+            >
+              <View className="mb-6 items-center">
+                <Image
+                  source={logoSource}
+                  className="h-12 w-[200px]"
+                  resizeMode="contain"
+                />
+              </View>
 
-          <View className="gap-3">
-            <View className="flex-row gap-3">
-              <TextInput
-                placeholder="First name"
-                placeholderTextColor="#a1a1aa"
-                autoCapitalize="words"
-                autoComplete="given-name"
-                value={firstName}
-                onChangeText={setFirstName}
-                className="flex-1 rounded-xl border border-zinc-200 bg-white px-4 py-3 text-zinc-900 dark:border-zinc-700 dark:bg-zinc-900 dark:text-white"
-              />
-              <TextInput
-                placeholder="Last name"
-                placeholderTextColor="#a1a1aa"
-                autoCapitalize="words"
-                autoComplete="family-name"
-                value={lastName}
-                onChangeText={setLastName}
-                className="flex-1 rounded-xl border border-zinc-200 bg-white px-4 py-3 text-zinc-900 dark:border-zinc-700 dark:bg-zinc-900 dark:text-white"
-              />
-            </View>
-            <TextInput
-              placeholder="Email"
-              placeholderTextColor="#a1a1aa"
-              keyboardType="email-address"
-              autoCapitalize="none"
-              autoComplete="email"
-              value={emailAddress}
-              onChangeText={setEmailAddress}
-              className="rounded-xl border border-zinc-200 bg-white px-4 py-3 text-zinc-900 dark:border-zinc-700 dark:bg-zinc-900 dark:text-white"
-            />
-            {errors.fields?.emailAddress != null && (
-              <IvyText className="text-sm text-red-600 dark:text-red-400">
-                {String(
-                  errors.fields.emailAddress.message ??
-                    errors.fields.emailAddress,
-                )}
+              <IvyText className="text-2xl font-bold text-zinc-900 dark:text-white">
+                Sign up
               </IvyText>
-            )}
-            <TextInput
-              placeholder="Password"
-              placeholderTextColor="#a1a1aa"
-              secureTextEntry
-              autoComplete="new-password"
-              value={password}
-              onChangeText={setPassword}
-              className="rounded-xl border border-zinc-200 bg-white px-4 py-3 text-zinc-900 dark:border-zinc-700 dark:bg-zinc-900 dark:text-white"
-            />
-            {errors.fields?.password != null && (
-              <IvyText className="text-sm text-red-600 dark:text-red-400">
-                {String(
-                  errors.fields.password.message ?? errors.fields.password,
+
+              <View className="mt-2 flex-row flex-wrap items-center gap-1">
+                <IvyText className="text-sm text-zinc-600 dark:text-zinc-400">
+                  Already have an account?
+                </IvyText>
+                <Link href="/login" asChild>
+                  <Pressable>
+                    <IvyText className="text-sm font-semibold text-pink-600 dark:text-pink-400">
+                      Sign in
+                    </IvyText>
+                  </Pressable>
+                </Link>
+              </View>
+
+              <View className="mt-6 gap-3">
+                <View className="flex-row gap-3">
+                  <View className="min-w-0 flex-1 flex-row items-center gap-2 rounded-full bg-zinc-100 px-3 py-1 dark:bg-zinc-900">
+                    <MaterialCommunityIcons
+                      name="account-outline"
+                      size={22}
+                      color="#71717a"
+                    />
+                    <TextInput
+                      placeholder="First name"
+                      placeholderTextColor="#a1a1aa"
+                      autoCapitalize="words"
+                      autoComplete="given-name"
+                      value={firstName}
+                      onChangeText={setFirstName}
+                      className="min-h-[48px] flex-1 py-3 text-base text-zinc-900 dark:text-white"
+                    />
+                  </View>
+                  <View className="min-w-0 flex-1 flex-row items-center gap-2 rounded-full bg-zinc-100 px-3 py-1 dark:bg-zinc-900">
+                    <MaterialCommunityIcons
+                      name="account-outline"
+                      size={22}
+                      color="#71717a"
+                    />
+                    <TextInput
+                      placeholder="Last name"
+                      placeholderTextColor="#a1a1aa"
+                      autoCapitalize="words"
+                      autoComplete="family-name"
+                      value={lastName}
+                      onChangeText={setLastName}
+                      className="min-h-[48px] flex-1 py-3 text-base text-zinc-900 dark:text-white"
+                    />
+                  </View>
+                </View>
+                {(errors.fields?.firstName != null ||
+                  errors.fields?.lastName != null) && (
+                  <IvyText className="text-sm text-red-600 dark:text-red-400">
+                    {[
+                      errors.fields?.firstName &&
+                        String(errors.fields.firstName),
+                      errors.fields?.lastName && String(errors.fields.lastName),
+                    ]
+                      .filter(Boolean)
+                      .join(' ')}
+                  </IvyText>
                 )}
-              </IvyText>
-            )}
-          </View>
 
-          <View className="mt-6" nativeID="clerk-captcha" />
+                <View className="flex-row items-center gap-3 rounded-full bg-zinc-100 px-4 py-1 dark:bg-zinc-900">
+                  <MaterialCommunityIcons
+                    name="email-outline"
+                    size={22}
+                    color="#71717a"
+                  />
+                  <TextInput
+                    placeholder="Email"
+                    placeholderTextColor="#a1a1aa"
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                    autoComplete="email"
+                    value={emailAddress}
+                    onChangeText={setEmailAddress}
+                    className="min-h-[48px] flex-1 py-3 text-base text-zinc-900 dark:text-white"
+                  />
+                </View>
+                {errors.fields?.emailAddress != null && (
+                  <IvyText className="text-sm text-red-600 dark:text-red-400">
+                    {String(
+                      errors.fields.emailAddress.message ??
+                        errors.fields.emailAddress,
+                    )}
+                  </IvyText>
+                )}
 
-          {globalError != null && (
-            <IvyText className="mt-3 text-sm text-red-600 dark:text-red-400">
-              {globalError}
-            </IvyText>
-          )}
+                <View className="flex-row items-center gap-3 rounded-full bg-zinc-100 px-4 py-1 dark:bg-zinc-900">
+                  <MaterialCommunityIcons
+                    name="lock-outline"
+                    size={22}
+                    color="#71717a"
+                  />
+                  <TextInput
+                    placeholder="Password"
+                    placeholderTextColor="#a1a1aa"
+                    secureTextEntry
+                    autoComplete="new-password"
+                    value={password}
+                    onChangeText={setPassword}
+                    className="min-h-[48px] flex-1 py-3 text-base text-zinc-900 dark:text-white"
+                  />
+                </View>
+                {errors.fields?.password != null && (
+                  <IvyText className="text-sm text-red-600 dark:text-red-400">
+                    {String(
+                      errors.fields.password.message ?? errors.fields.password,
+                    )}
+                  </IvyText>
+                )}
+              </View>
 
-          <View className="mt-4">
-            <GoldGradientButton
-              title="Sign up"
-              onPress={handleSubmit}
-              disabled={
-                isBusy || !firstName || !lastName || !emailAddress || !password
-              }
-            />
-          </View>
-          {isBusy ? <ActivityIndicator className="mt-4" /> : null}
+              <View className="mt-6" nativeID="clerk-captcha" />
 
-          <View className="mt-8 flex-row flex-wrap items-center justify-center gap-1">
-            <IvyText className="text-center text-sm text-zinc-600 dark:text-zinc-400">
-              Already have an account?
-            </IvyText>
-            <Link href="/login" asChild>
-              <Pressable>
-                <IvyText className="text-sm text-amber-700 underline dark:text-amber-400">
-                  Sign in
+              {globalError != null && (
+                <IvyText className="mt-3 text-sm text-red-600 dark:text-red-400">
+                  {globalError}
+                </IvyText>
+              )}
+
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Sign up"
+                disabled={signUpDisabled}
+                onPress={handleSubmit}
+                className={`mt-6 items-center rounded-full bg-pink-600 py-4 active:opacity-90 ${
+                  signUpDisabled ? 'opacity-50' : ''
+                }`}
+              >
+                <IvyText className="text-base font-semibold text-white">
+                  Sign up
                 </IvyText>
               </Pressable>
-            </Link>
+              {isBusy ? (
+                <ActivityIndicator className="mt-4" color="#db2777" />
+              ) : null}
+
+              <AuthOrDivider label="Or continue with" />
+              <GoogleSignInButton disabled={isBusy} pill />
+            </ScrollView>
           </View>
-        </KeyboardAvoidingView>
-      </View>
-    </SafeAreaView>
+        </View>
+      </KeyboardAvoidingView>
+    </View>
   );
 }
