@@ -20,6 +20,7 @@ import 'react-native-reanimated';
 
 import '../global.css';
 
+import { ClerkUserSync } from '@/components/clerk-user-sync';
 import { IvyDarkNavigationTheme, IvyLightNavigationTheme } from '@/constants/navigation-theme';
 import { useIvyColorScheme } from '@/hooks/use-ivy-color-scheme';
 import { TrpcProvider } from '@/lib/trpc';
@@ -91,6 +92,7 @@ export default function RootLayout() {
   return (
     <ClerkProvider publishableKey={getClerkPublishableKey()} tokenCache={tokenCache}>
       <TrpcProvider>
+        <ClerkUserSync />
         <SafeAreaProvider>
           <RootLayoutNav />
         </SafeAreaProvider>
