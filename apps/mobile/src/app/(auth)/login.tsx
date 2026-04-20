@@ -28,9 +28,6 @@ import { IvyText } from '@/components/ivy/ivy-text';
 /** Placeholder hero art — swap anytime */
 const HERO_IMAGE = require('@/assets/images/nebula.jpg');
 
-const TEAL = '#0d9488';
-const TEAL_DARK = '#0f766e';
-
 export default function LoginScreen() {
   const { signIn, errors, fetchStatus } = useSignIn();
   const insets = useSafeAreaInsets();
@@ -106,13 +103,15 @@ export default function LoginScreen() {
     }
   };
 
+  const signInDisabled = isBusy || !emailAddress || !password;
+
   if (
     signIn.status === 'needs_second_factor' ||
     signIn.status === 'needs_client_trust'
   ) {
     return (
       <SafeAreaView
-        style={{ flex: 1 }}
+        className="flex-1"
         edges={['top', 'left', 'right', 'bottom']}
       >
         <View className="flex-1 bg-zinc-50 px-6 pt-8 dark:bg-zinc-950">
@@ -120,14 +119,15 @@ export default function LoginScreen() {
             Verify your account
           </IvyHeading> */}
 
-          {/* <View className="w-full items-center my-4">
+          {/* <View className="my-4 w-full items-center">
           <Image
             source={
               useColorScheme() === 'dark'
                 ? require('@/assets/images/ivy-mmm-logo-white.png')
                 : require('@/assets/images/ivy-mmm-logo-black.png')
             }
-            style={{ width: '100%', height: 100, resizeMode: 'contain' }}
+            className="h-[100px] w-full"
+            resizeMode="contain"
           />
         </View> */}
           <IvyText className="mt-2 text-zinc-600 dark:text-zinc-400">
@@ -160,56 +160,36 @@ export default function LoginScreen() {
   }
 
   return (
-    <View style={{ flex: 1, backgroundColor: TEAL_DARK }}>
+    <View className="flex-1 bg-transparent">
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        style={{ flex: 1 }}
+        className="flex-1"
       >
         <View className="flex-1">
-          {/* Hero — ~22% height; card flex below takes the rest */}
-          <View className="overflow-hidden" style={{ flex: 2, minHeight: 108 }}>
+          {/* Hero — ~20% height; card flex below takes the rest */}
+          <View className="min-h-[108px] flex-[2] overflow-hidden">
             <Image
               source={HERO_IMAGE}
-              style={{ position: 'absolute', width: '100%', height: '100%' }}
+              className="absolute inset-0 h-full w-full"
               resizeMode="cover"
             />
-            <View className="flex-1 justify-end px-6 pb-6 bg-pink-500/20"></View>
+            <View className="flex-1 justify-end bg-pink-700/20 px-6 pb-6"></View>
           </View>
 
           {/* Card — ~80% of height (flex 8 vs hero flex 2) */}
-          <View
-            className="min-h-0 flex-[8] bg-white dark:bg-zinc-950"
-            style={{
-              borderTopLeftRadius: 32,
-              borderTopRightRadius: 32,
-              marginTop: -18,
-              paddingTop: 8,
-              shadowColor: '#000',
-              shadowOffset: { width: 0, height: -4 },
-              shadowOpacity: 0.08,
-              shadowRadius: 12,
-              elevation: 8,
-            }}
-          >
+          <View className="min-h-0 flex-[8] -mt-[18px] rounded-t-[32px] bg-white pt-2 shadow-[0_-4px_12px_rgb(0_0_0_/_0.08)] elevation-[8] dark:bg-zinc-950">
             <ScrollView
-              style={{ flex: 1 }}
+              className="flex-1"
+              contentContainerClassName="flex-grow px-6 pt-5"
+              contentContainerStyle={{ paddingBottom: insets.bottom + 28 }}
               keyboardShouldPersistTaps="handled"
-              contentContainerStyle={{
-                flexGrow: 1,
-                paddingHorizontal: 24,
-                paddingBottom: insets.bottom + 28,
-                paddingTop: 20,
-              }}
               showsVerticalScrollIndicator={false}
             >
               <View className="mb-6 items-center">
                 <Image
                   source={logoSource}
-                  style={{
-                    width: 200,
-                    height: 48,
-                    resizeMode: 'contain',
-                  }}
+                  className="h-12 w-[200px]"
+                  resizeMode="contain"
                 />
               </View>
 
@@ -223,10 +203,7 @@ export default function LoginScreen() {
                 </IvyText>
                 <Link href="/sign-up" asChild>
                   <Pressable>
-                    <IvyText
-                      className="text-sm font-semibold"
-                      style={{ color: TEAL }}
-                    >
+                    <IvyText className="text-sm font-semibold text-pink-600 dark:text-pink-400">
                       Sign up
                     </IvyText>
                   </Pressable>
@@ -292,11 +269,11 @@ export default function LoginScreen() {
                   onPress={() => setRememberMe((v) => !v)}
                 >
                   <View
-                    className="h-5 w-5 items-center justify-center rounded border-2"
-                    style={{
-                      borderColor: rememberMe ? TEAL : '#d4d4d8',
-                      backgroundColor: rememberMe ? TEAL : 'transparent',
-                    }}
+                    className={`h-5 w-5 items-center justify-center rounded border-2 ${
+                      rememberMe
+                        ? 'border-pink-600 bg-pink-600'
+                        : 'border-zinc-300 bg-transparent dark:border-zinc-600'
+                    }`}
                   >
                     {rememberMe ? (
                       <MaterialCommunityIcons
@@ -321,20 +298,18 @@ export default function LoginScreen() {
               <Pressable
                 accessibilityRole="button"
                 accessibilityLabel="Sign in"
-                disabled={isBusy || !emailAddress || !password}
+                disabled={signInDisabled}
                 onPress={handleSubmit}
-                className="mt-6 items-center rounded-full py-4 active:opacity-90"
-                style={{
-                  backgroundColor: TEAL,
-                  opacity: isBusy || !emailAddress || !password ? 0.5 : 1,
-                }}
+                className={`mt-6 items-center rounded-full bg-pink-600 py-4 active:opacity-90 ${
+                  signInDisabled ? 'opacity-50' : ''
+                }`}
               >
                 <IvyText className="text-base font-semibold text-white">
                   Sign in
                 </IvyText>
               </Pressable>
               {isBusy ? (
-                <ActivityIndicator className="mt-4" color={TEAL} />
+                <ActivityIndicator className="mt-4" color="#0d9488" />
               ) : null}
 
               <AuthOrDivider label="Or continue with" />
