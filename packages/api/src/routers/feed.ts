@@ -37,18 +37,90 @@ function parseCreateFeedPostBody(val: unknown): { body: string } {
   return { body };
 }
 
+function parsePostId(val: unknown): { postId: string } {
+  if (!val || typeof val !== 'object') {
+    throw new TRPCError({ code: 'BAD_REQUEST', message: 'Invalid input' });
+  }
+  const o = val as Record<string, unknown>;
+  const postId = typeof o.postId === 'string' ? o.postId.trim() : '';
+  if (!postId.length) {
+    throw new TRPCError({ code: 'BAD_REQUEST', message: 'postId is required' });
+  }
+  return { postId };
+}
+
+function parseAddComment(val: unknown): { postId: string; body: string } {
+  if (!val || typeof val !== 'object') {
+    throw new TRPCError({ code: 'BAD_REQUEST', message: 'Invalid input' });
+  }
+  const o = val as Record<string, unknown>;
+  const postId = typeof o.postId === 'string' ? o.postId.trim() : '';
+  const body = typeof o.body === 'string' ? o.body.trim() : '';
+  if (!postId.length) {
+    throw new TRPCError({ code: 'BAD_REQUEST', message: 'postId is required' });
+  }
+  if (!body.length) {
+    throw new TRPCError({ code: 'BAD_REQUEST', message: 'body is required' });
+  }
+  if (body.length > 2000) {
+    throw new TRPCError({ code: 'BAD_REQUEST', message: 'Comment is too long' });
+  }
+  return { postId, body };
+}
+
 export const feedRouter = router({
   list: publicProcedure.query(async ({ ctx }) => {
     const rows = await ctx.prisma.feedPost.findMany({
       orderBy: { createdAt: 'desc' },
       take: 50,
-      include: { author: true },
+      include: {
+        author: true,
+        _count: { select: { likes: true, comments: true } },
+      },
     });
+
+    let currentUserId: string | null = null;
+    if (ctx.clerkUserId) {
+      const me = await ctx.prisma.user.findUnique({
+        where: { clerkUserId: ctx.clerkUserId },
+        select: { id: true },
+      });
+      currentUserId = me?.id ?? null;
+    }
+
+    const postIds = rows.map((r) => r.id);
+    const likedSet = new Set<string>();
+    if (currentUserId && postIds.length > 0) {
+      const myLikes = await ctx.prisma.feedPostLike.findMany({
+        where: { userId: currentUserId, postId: { in: postIds } },
+        select: { postId: true },
+      });
+      for (const l of myLikes) likedSet.add(l.postId);
+    }
+
     return rows.map((row) => ({
       id: row.id,
       name: displayNameForUser(row.author),
       time: formatFeedPostTime(row.createdAt),
       body: row.body,
+      likeCount: row._count.likes,
+      commentCount: row._count.comments,
+      likedByMe: likedSet.has(row.id),
+    }));
+  }),
+
+  comments: publicProcedure.input(parsePostId).query(async ({ ctx, input }) => {
+    const rows = await ctx.prisma.feedPostComment.findMany({
+      where: { postId: input.postId },
+      orderBy: { createdAt: 'asc' },
+      take: 100,
+      include: { author: true },
+    });
+    return rows.map((c) => ({
+      id: c.id,
+      name: displayNameForUser(c.author),
+      time: formatFeedPostTime(c.createdAt),
+      body: c.body,
     }));
   }),
 
@@ -65,6 +137,49 @@ export const feedRouter = router({
       name: displayNameForUser(user),
       time: formatFeedPostTime(post.createdAt),
       body: post.body,
+      likeCount: 0,
+      commentCount: 0,
+      likedByMe: false,
     };
+  }),
+
+  toggleLike: protectedProcedure.input(parsePostId).mutation(async ({ ctx, input }) => {
+    const user = await ensureUserForClerkId(ctx.prisma, ctx.clerkUserId);
+    const post = await ctx.prisma.feedPost.findUnique({ where: { id: input.postId } });
+    if (!post) {
+      throw new TRPCError({ code: 'NOT_FOUND', message: 'Post not found' });
+    }
+
+    const existing = await ctx.prisma.feedPostLike.findUnique({
+      where: { postId_userId: { postId: input.postId, userId: user.id } },
+    });
+
+    if (existing) {
+      await ctx.prisma.feedPostLike.delete({ where: { id: existing.id } });
+      return { liked: false as const };
+    }
+
+    await ctx.prisma.feedPostLike.create({
+      data: { postId: input.postId, userId: user.id },
+    });
+    return { liked: true as const };
+  }),
+
+  addComment: protectedProcedure.input(parseAddComment).mutation(async ({ ctx, input }) => {
+    const user = await ensureUserForClerkId(ctx.prisma, ctx.clerkUserId);
+    const post = await ctx.prisma.feedPost.findUnique({ where: { id: input.postId } });
+    if (!post) {
+      throw new TRPCError({ code: 'NOT_FOUND', message: 'Post not found' });
+    }
+
+    await ctx.prisma.feedPostComment.create({
+      data: {
+        postId: input.postId,
+        authorId: user.id,
+        body: input.body,
+      },
+    });
+
+    return { ok: true as const };
   }),
 });

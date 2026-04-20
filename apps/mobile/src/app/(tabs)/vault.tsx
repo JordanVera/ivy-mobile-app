@@ -120,9 +120,14 @@ export default function VaultScreen() {
             feedQuery.data.map((post) => (
               <View key={post.id} className="mb-4">
                 <FeedPostCard
+                  postId={post.id}
                   name={post.name}
                   time={post.time}
                   body={post.body}
+                  likeCount={post.likeCount}
+                  commentCount={post.commentCount}
+                  likedByMe={post.likedByMe}
+                  isSignedIn={!!isSignedIn}
                 />
               </View>
             ))
