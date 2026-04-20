@@ -1,7 +1,6 @@
 import { useSSO } from '@clerk/expo';
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { useState } from 'react';
-import { ActivityIndicator, Pressable, View } from 'react-native';
+import { ActivityIndicator, Image, Pressable, View } from 'react-native';
 
 import { IvyText } from '@/components/ivy/ivy-text';
 
@@ -73,13 +72,17 @@ export function GoogleSignInButton({
         onPress={handlePress}
         className={`flex-row items-center justify-center gap-2 border border-zinc-200 bg-white py-3.5 active:opacity-90 dark:border-zinc-600 dark:bg-zinc-900 ${
           pill ? 'rounded-full' : 'rounded-xl'
-        }`}>
+        }`}
+      >
         {busy ? (
           <ActivityIndicator color="#a16207" />
         ) : (
           <>
-            <MaterialCommunityIcons name="google" size={22} color="#4285F4" />
-            <IvyText className="text-base font-semibold text-zinc-900 dark:text-white">
+            <Image
+              source={require('@/assets/images/google-g-icon.png')}
+              className="w-8 h-8"
+            />
+            <IvyText className="text-base font-bold text-black dark:text-white">
               Continue with Google
             </IvyText>
           </>
