@@ -118,7 +118,7 @@ export default function SignUpScreen() {
                 className="absolute inset-0 h-full w-full"
                 resizeMode="cover"
               />
-              <View className="flex-1 justify-end bg-pink-700/20 px-6 pb-6">
+              <View className="flex-1 justify-end bg-orange-700/20 px-6 pb-6">
                 <IvyText className="text-2xl font-bold leading-tight text-white">
                   Verify your email to finish setting up your account.
                 </IvyText>
@@ -182,7 +182,7 @@ export default function SignUpScreen() {
                   accessibilityLabel="Verify email"
                   disabled={verifyDisabled}
                   onPress={handleVerify}
-                  className={`mt-6 items-center rounded-full bg-pink-600 py-4 active:opacity-90 ${
+                  className={`mt-6 items-center rounded-full bg-orange-600 py-4 active:opacity-90 ${
                     verifyDisabled ? 'opacity-50' : ''
                   }`}
                 >
@@ -198,7 +198,7 @@ export default function SignUpScreen() {
                   className="mt-4 items-center active:opacity-70"
                   onPress={() => signUp.verifications.sendEmailCode()}
                 >
-                  <IvyText className="text-sm font-semibold text-pink-600 dark:text-pink-400">
+                  <IvyText className="text-sm font-semibold text-orange-600 dark:text-orange-400">
                     Resend code
                   </IvyText>
                 </Pressable>
@@ -223,10 +223,10 @@ export default function SignUpScreen() {
               className="absolute inset-0 h-full w-full"
               resizeMode="cover"
             />
-            <View className="flex-1 justify-end bg-pink-700/20 px-6 pb-6"></View>
+            <View className="flex-1 justify-end bg-orange-700/20 px-6 pb-6"></View>
           </View>
 
-          <View className="min-h-0 flex-[8] -mt-[18px] rounded-t-[32px] bg-white pt-2 shadow-[0_-4px_12px_rgb(0_0_0_/_0.08)] elevation-[8] dark:bg-zinc-950">
+          <View className="min-h-0 flex-[9.5] -mt-[18px] rounded-t-[32px] bg-white pt-2 shadow-[0_-4px_12px_rgb(0_0_0_/_0.08)] elevation-[8] dark:bg-zinc-950">
             <ScrollView
               className="flex-1"
               contentContainerClassName="flex-grow px-6 pt-5"
@@ -252,7 +252,7 @@ export default function SignUpScreen() {
                 </IvyText>
                 <Link href="/login" asChild>
                   <Pressable>
-                    <IvyText className="text-sm font-semibold text-pink-600 dark:text-pink-400">
+                    <IvyText className="text-sm font-semibold text-orange-600 dark:text-orange-400">
                       Sign in
                     </IvyText>
                   </Pressable>
@@ -371,7 +371,7 @@ export default function SignUpScreen() {
                 accessibilityLabel="Sign up"
                 disabled={signUpDisabled}
                 onPress={handleSubmit}
-                className={`mt-6 items-center rounded-full bg-pink-600 py-4 active:opacity-90 ${
+                className={`mt-6 items-center rounded-full bg-orange-600 py-4 active:opacity-90 ${
                   signUpDisabled ? 'opacity-50' : ''
                 }`}
               >

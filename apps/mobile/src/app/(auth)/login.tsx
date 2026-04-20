@@ -173,7 +173,7 @@ export default function LoginScreen() {
               className="absolute inset-0 h-full w-full"
               resizeMode="cover"
             />
-            <View className="flex-1 justify-end bg-pink-700/20 px-6 pb-6"></View>
+            <View className="flex-1 justify-end bg-orange-700/20 px-6 pb-6"></View>
           </View>
 
           {/* Card — ~80% of height (flex 8 vs hero flex 2) */}
@@ -203,7 +203,7 @@ export default function LoginScreen() {
                 </IvyText>
                 <Link href="/sign-up" asChild>
                   <Pressable>
-                    <IvyText className="text-sm font-semibold text-pink-600 dark:text-pink-400">
+                    <IvyText className="text-sm font-semibold text-orange-600 dark:text-orange-400">
                       Sign up
                     </IvyText>
                   </Pressable>
@@ -271,7 +271,7 @@ export default function LoginScreen() {
                   <View
                     className={`h-5 w-5 items-center justify-center rounded border-2 ${
                       rememberMe
-                        ? 'border-pink-600 bg-pink-600'
+                        ? 'border-orange-600 bg-orange-600'
                         : 'border-zinc-300 bg-transparent dark:border-zinc-600'
                     }`}
                   >
@@ -300,7 +300,7 @@ export default function LoginScreen() {
                 accessibilityLabel="Sign in"
                 disabled={signInDisabled}
                 onPress={handleSubmit}
-                className={`mt-6 items-center rounded-full bg-pink-600 py-4 active:opacity-90 ${
+                className={`mt-6 items-center rounded-full bg-orange-600 py-4 active:opacity-90 ${
                   signInDisabled ? 'opacity-50' : ''
                 }`}
               >
