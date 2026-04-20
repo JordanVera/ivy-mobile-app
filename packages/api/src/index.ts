@@ -16,5 +16,6 @@ export type AppRouter = typeof appRouter;
 export { createTRPCContext } from './context';
 export {
   deleteUserByClerkId,
+  refreshUserFromClerk,
   upsertUserFromClerkUserJSON,
 } from './lib/clerk-user';

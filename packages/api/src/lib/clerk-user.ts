@@ -84,13 +84,7 @@ export async function deleteUserByClerkId(
  * Ensures a local `User` row exists for this Clerk user. Used after sign-in when the
  * webhook may not have run yet (race) or failed (retry).
  */
-export async function ensureUserForClerkId(
-  prisma: PrismaClient,
-  clerkUserId: string,
-): Promise<User> {
-  const existing = await prisma.user.findUnique({ where: { clerkUserId } });
-  if (existing) return existing;
-
+function requireClerkSecretKey(): string {
   const secret = process.env.CLERK_SECRET_KEY?.trim();
   if (!secret) {
     throw new TRPCError({
@@ -99,8 +93,29 @@ export async function ensureUserForClerkId(
         'Missing CLERK_SECRET_KEY. Add it to apps/web/.env so the API can sync users from Clerk.',
     });
   }
+  return secret;
+}
 
-  const clerk = createClerkClient({ secretKey: secret });
+export async function ensureUserForClerkId(
+  prisma: PrismaClient,
+  clerkUserId: string,
+): Promise<User> {
+  const existing = await prisma.user.findUnique({ where: { clerkUserId } });
+  if (existing) return existing;
+
+  const clerk = createClerkClient({ secretKey: requireClerkSecretKey() });
+  const user = await clerk.users.getUser(clerkUserId);
+  return upsertUserFromClerkApiUser(prisma, user);
+}
+
+/**
+ * Re-fetches the user from Clerk and upserts into our DB (name, email, avatar).
+ */
+export async function refreshUserFromClerk(
+  prisma: PrismaClient,
+  clerkUserId: string,
+): Promise<User> {
+  const clerk = createClerkClient({ secretKey: requireClerkSecretKey() });
   const user = await clerk.users.getUser(clerkUserId);
   return upsertUserFromClerkApiUser(prisma, user);
 }

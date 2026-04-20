@@ -28,6 +28,8 @@ const MAPPING = {
   'heart.fill': 'favorite-border',
   'square.and.arrow.up': 'share',
   'doc.fill': 'picture-as-pdf',
+  'arrow.clockwise': 'sync',
+  'checkmark.shield.fill': 'check-circle',
 } as const satisfies IconMapping;
 
 export type IconSymbolName = keyof typeof MAPPING;
