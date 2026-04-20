@@ -29,6 +29,8 @@ function isUserCancellation(error: unknown): boolean {
 
 type GoogleSignInButtonProps = {
   disabled?: boolean;
+  /** Rounded pill shape to match auth card layouts */
+  pill?: boolean;
 };
 
 /**
@@ -36,7 +38,10 @@ type GoogleSignInButtonProps = {
  * Avoids `@clerk/expo/google`, which requires the native `expo-crypto` module and a fresh native build.
  * Add your app redirect URL in Clerk (e.g. `ivymobileapp://sso-callback` from expo-auth-session).
  */
-export function GoogleSignInButton({ disabled }: GoogleSignInButtonProps) {
+export function GoogleSignInButton({
+  disabled,
+  pill = false,
+}: GoogleSignInButtonProps) {
   const { startSSOFlow } = useSSO();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -66,7 +71,9 @@ export function GoogleSignInButton({ disabled }: GoogleSignInButtonProps) {
         accessibilityLabel="Continue with Google"
         disabled={disabled || busy}
         onPress={handlePress}
-        className="flex-row items-center justify-center gap-2 rounded-xl border border-zinc-200 bg-white py-3.5 active:opacity-90 dark:border-zinc-600 dark:bg-zinc-900">
+        className={`flex-row items-center justify-center gap-2 border border-zinc-200 bg-white py-3.5 active:opacity-90 dark:border-zinc-600 dark:bg-zinc-900 ${
+          pill ? 'rounded-full' : 'rounded-xl'
+        }`}>
         {busy ? (
           <ActivityIndicator color="#a16207" />
         ) : (
@@ -87,11 +94,17 @@ export function GoogleSignInButton({ disabled }: GoogleSignInButtonProps) {
   );
 }
 
-export function AuthOrDivider() {
+type AuthOrDividerProps = {
+  label?: string;
+};
+
+export function AuthOrDivider({ label = 'OR' }: AuthOrDividerProps) {
   return (
     <View className="my-5 flex-row items-center gap-3">
       <View className="h-px flex-1 bg-zinc-200 dark:bg-zinc-700" />
-      <IvyText className="text-sm text-zinc-500 dark:text-zinc-400">OR</IvyText>
+      <IvyText className="text-sm text-zinc-500 dark:text-zinc-400">
+        {label}
+      </IvyText>
       <View className="h-px flex-1 bg-zinc-200 dark:bg-zinc-700" />
     </View>
   );
