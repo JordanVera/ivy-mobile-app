@@ -59,6 +59,7 @@ export default function HomeScreen() {
                     contentFit="cover"
                     contentPosition="top"
                   />
+                  <View pointerEvents="none" style={styles.imageDarkOverlay} />
                 </View>
               </View>
             </IvyCard>
@@ -77,6 +78,7 @@ export default function HomeScreen() {
                     contentFit="cover"
                     contentPosition="top"
                   />
+                  <View pointerEvents="none" style={styles.imageDarkOverlay} />
                 </View>
                 <View className="min-h-0 min-w-0 flex-1 justify-center px-4 py-5">
                   <IvyHeading className="text-2xl leading-tight text-zinc-900 dark:text-white">
@@ -101,6 +103,7 @@ export default function HomeScreen() {
                     contentFit="cover"
                     contentPosition="top"
                   />
+                  <View pointerEvents="none" style={styles.imageDarkOverlay} />
                 </View>
                 <View className="min-h-0 min-w-0 flex-1 justify-center px-4 py-5">
                   <IvyHeading className="text-2xl leading-tight text-zinc-900 dark:text-white">
@@ -120,6 +123,10 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
+  imageDarkOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0, 0, 0, 0.25)',
+  },
   heroImageFrame: {
     width: '42%',
     minWidth: 130,
