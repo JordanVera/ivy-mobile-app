@@ -3,7 +3,8 @@
   "compilerOptions": {
     "plugins": [{ "name": "next" }],
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@ivy/assets/*": ["../../packages/assets/*"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],

@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import {
   ActivityIndicator,
+  Image,
   Pressable,
   ScrollView,
+  useColorScheme,
   useWindowDimensions,
   View,
 } from 'react-native';
@@ -54,6 +56,17 @@ export default function WatchScreen() {
           selected={category}
           onSelect={(c) => setCategory(c)}
         /> */}
+        {/* Show appropriate logo based on theme */}
+        <View className="w-full items-center my-4">
+          <Image
+            source={
+              useColorScheme() === 'dark'
+                ? require('@/assets/images/ivy-mmm-logo-white.png')
+                : require('@/assets/images/ivy-mmm-logo-black.png')
+            }
+            style={{ width: '100%', height: 100, resizeMode: 'contain' }}
+          />
+        </View>
 
         <IvyText className="mb-2 text-sm font-semibold text-zinc-900 dark:text-white">
           Featured

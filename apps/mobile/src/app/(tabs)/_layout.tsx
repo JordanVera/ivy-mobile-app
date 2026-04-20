@@ -23,12 +23,15 @@ export default function TabLayout() {
           backgroundColor: tabBg,
           borderTopColor: border,
         },
-      }}>
+      }}
+    >
       <Tabs.Screen
         name="home"
         options={{
           title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={26} name="house.fill" color={color} />,
+          tabBarIcon: ({ color }) => (
+            <IconSymbol size={26} name="house.fill" color={color} />
+          ),
         }}
       />
       <Tabs.Screen
@@ -53,7 +56,9 @@ export default function TabLayout() {
         name="community"
         options={{
           title: 'Community',
-          tabBarIcon: ({ color }) => <IconSymbol size={26} name="person.3.fill" color={color} />,
+          tabBarIcon: ({ color }) => (
+            <IconSymbol size={26} name="person.3.fill" color={color} />
+          ),
         }}
       />
       <Tabs.Screen
@@ -61,7 +66,11 @@ export default function TabLayout() {
         options={{
           title: 'Profile',
           tabBarIcon: ({ color }) => (
-            <IconSymbol size={26} name="person.crop.circle.fill" color={color} />
+            <IconSymbol
+              size={26}
+              name="person.crop.circle.fill"
+              color={color}
+            />
           ),
         }}
       />
