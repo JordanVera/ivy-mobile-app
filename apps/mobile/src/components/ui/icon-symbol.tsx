@@ -30,6 +30,11 @@ const MAPPING = {
   'doc.fill': 'picture-as-pdf',
   'arrow.clockwise': 'sync',
   'checkmark.shield.fill': 'check-circle',
+  'calendar.badge.plus': 'event',
+  'checkmark.circle.fill': 'check-circle',
+  'dot.radiowaves.left.and.right': 'podcasts',
+  'play.rectangle.fill': 'play-circle-filled',
+  'chevron.left': 'chevron-left',
 } as const satisfies IconMapping;
 
 export type IconSymbolName = keyof typeof MAPPING;

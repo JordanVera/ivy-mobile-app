@@ -1,0 +1,14 @@
+-- CreateTable
+CREATE TABLE `LiveEvent` (
+    `id` VARCHAR(191) NOT NULL,
+    `title` VARCHAR(191) NOT NULL,
+    `description` TEXT NULL,
+    `youtubeVideoId` VARCHAR(191) NOT NULL,
+    `startsAt` DATETIME(3) NOT NULL,
+    `durationMinutes` INTEGER NOT NULL DEFAULT 60,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL,
+
+    INDEX `LiveEvent_startsAt_idx`(`startsAt`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;

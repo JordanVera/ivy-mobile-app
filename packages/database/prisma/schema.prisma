@@ -67,3 +67,19 @@ model FeedPostComment {
   @@index([postId])
   @@index([createdAt])
 }
+
+/// Scheduled Monday Mentorship Moment live streams (monthly live event + weekly drops).
+/// `startsAt` is the scheduled start time. `durationMinutes` defines the live window so the
+/// app can decide whether to show a countdown or the live embed.
+model LiveEvent {
+  id              String   @id @default(cuid())
+  title           String
+  description     String?  @db.Text
+  youtubeVideoId  String
+  startsAt        DateTime
+  durationMinutes Int      @default(60)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([startsAt])
+}
