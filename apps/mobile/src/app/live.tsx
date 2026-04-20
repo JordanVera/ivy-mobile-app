@@ -1,5 +1,5 @@
 import * as Linking from 'expo-linking';
-import { Stack, useRouter } from 'expo-router';
+import { Stack, useRouter, type Href } from 'expo-router';
 import {
   ActivityIndicator,
   Pressable,
@@ -58,7 +58,7 @@ export default function LiveEventScreen() {
             <Pressable
               onPress={() => {
                 if (router.canGoBack()) router.back();
-                else router.replace('/(tabs)/home');
+                else router.replace('/home' as Href);
               }}
               hitSlop={12}
               accessibilityLabel="Back"
