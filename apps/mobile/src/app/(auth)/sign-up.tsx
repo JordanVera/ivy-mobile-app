@@ -11,6 +11,10 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import {
+  AuthOrDivider,
+  GoogleSignInButton,
+} from '@/components/auth/google-sign-in-button';
 import { GoldGradientButton } from '@/components/ivy/gold-gradient-button';
 import { IvyHeading } from '@/components/ivy/ivy-heading';
 import { IvyText } from '@/components/ivy/ivy-text';
@@ -147,6 +151,9 @@ export default function SignUpScreen() {
               Create your account
             </IvyText>
           </View>
+
+          <GoogleSignInButton disabled={isBusy} />
+          <AuthOrDivider />
 
           <View className="gap-3">
             <View className="flex-row gap-3">
