@@ -10,6 +10,7 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
+    "@clerk/backend": "^3.2.9",
     "@ivy/database": "*",
     "@trpc/server": "^11.6.0",
     "react": "^19.1.0",

@@ -8,7 +8,12 @@ export const watchCategories = [
 
 export const watchFeedItems = [
   { id: '1', title: 'Morning mindset reset', duration: '12:04', live: false },
-  { id: '2', title: 'Live Q&A: scaling your vision', duration: 'LIVE', live: true },
+  {
+    id: '2',
+    title: 'Live Q&A: scaling your vision',
+    duration: 'LIVE',
+    live: true,
+  },
   { id: '3', title: 'Weekly strategy session', duration: '48:22', live: false },
   { id: '4', title: 'Asset protection basics', duration: '19:15', live: false },
   { id: '5', title: 'Community wins spotlight', duration: '8:30', live: false },
@@ -16,10 +21,34 @@ export const watchFeedItems = [
 ] as const;
 
 export const vaultResources = [
-  { id: '1', title: 'Weekly Asset Planner' },
-  { id: '2', title: '30 Day Discipline Map' },
-  { id: '3', title: 'Vision Builder' },
-  { id: '4', title: 'Success Templates' },
+  {
+    id: '1',
+    title: 'Weekly Asset Planner',
+    imageUrl:
+      'https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=1200&q=80',
+    url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+  },
+  {
+    id: '2',
+    title: '30 Day Discipline Map',
+    imageUrl:
+      'https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?w=1200&q=80',
+    url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+  },
+  {
+    id: '3',
+    title: 'Vision Builder',
+    imageUrl:
+      'https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=1200&q=80',
+    url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+  },
+  {
+    id: '4',
+    title: 'Success Templates',
+    imageUrl:
+      'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=1200&q=80',
+    url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+  },
 ] as const;
 
 export const communityPillars = [
@@ -63,9 +92,3 @@ export const communityActivity = [
     time: '1d ago',
   },
 ] as const;
-
-export const vaultFeedPost = {
-  name: 'Kevricia Seams',
-  time: 'Today · 9:14 AM',
-  body: 'Finished the discipline map — who else is committing to the 7-day focus block this week?',
-} as const;

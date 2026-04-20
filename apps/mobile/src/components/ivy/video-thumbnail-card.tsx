@@ -1,5 +1,5 @@
-import * as Linking from 'expo-linking';
 import { Image } from 'expo-image';
+import * as Linking from 'expo-linking';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { IconSymbol } from '@/components/ui/icon-symbol';
@@ -32,10 +32,12 @@ export function VideoThumbnailCard({
     if (id) void Linking.openURL(`https://www.youtube.com/watch?v=${id}`);
   };
 
-  const thumbUri = thumbnailUrl?.trim() ? toHttpsThumbnailUri(thumbnailUrl) : null;
+  const thumbUri = thumbnailUrl?.trim()
+    ? toHttpsThumbnailUri(thumbnailUrl)
+    : null;
 
   const card = (
-    <View className="mb-3 overflow-hidden rounded-xl border border-zinc-200 bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-800">
+    <View className="mb-3 overflow-hidden rounded-2xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
       <View
         className="w-full bg-zinc-200 dark:bg-zinc-950"
         style={styles.thumbArea}
@@ -62,10 +64,15 @@ export function VideoThumbnailCard({
         ) : null}
       </View>
       <View className="p-2">
-        <IvyText className="text-sm font-semibold text-zinc-900 dark:text-white" numberOfLines={2}>
+        <IvyText
+          className="text-sm font-semibold text-zinc-900 dark:text-white"
+          numberOfLines={2}
+        >
           {title}
         </IvyText>
-        <IvyText className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">{duration}</IvyText>
+        <IvyText className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+          {duration}
+        </IvyText>
       </View>
     </View>
   );

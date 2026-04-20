@@ -27,6 +27,7 @@ const MAPPING = {
   'bubble.left.and.bubble.right.fill': 'forum',
   'heart.fill': 'favorite-border',
   'square.and.arrow.up': 'share',
+  'doc.fill': 'picture-as-pdf',
 } as const satisfies IconMapping;
 
 export type IconSymbolName = keyof typeof MAPPING;
