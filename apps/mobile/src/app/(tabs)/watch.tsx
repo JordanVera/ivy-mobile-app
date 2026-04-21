@@ -1,3 +1,4 @@
+import { useRouter, type Href } from 'expo-router';
 import { useState } from 'react';
 import {
   ActivityIndicator,
@@ -17,6 +18,7 @@ import { watchCategories } from '@/data/mock/content';
 import { trpc } from '@/lib/trpc';
 
 export default function WatchScreen() {
+  const router = useRouter();
   const { width } = useWindowDimensions();
   const [category, setCategory] = useState<string>(watchCategories[0]);
   const { data, isLoading, isError, error } =
@@ -25,8 +27,30 @@ export default function WatchScreen() {
   const colWidth = (width - 32 - gap) / 2;
 
   const videos = data?.videos ?? [];
-  const featuredId = videos[0]?.videoId;
+  const featured = videos[0];
+  const featuredId = featured?.videoId;
   const moreVideos = videos.slice(1);
+
+  const featuredThreadCount = trpc.episodeThread.counts.useQuery(
+    { videoIds: featuredId ? [featuredId] : [] },
+    {
+      enabled: !!featuredId,
+      refetchOnWindowFocus: true,
+      staleTime: 10_000,
+    },
+  );
+  const featuredCommentCount =
+    featuredId && featuredThreadCount.data
+      ? (featuredThreadCount.data[featuredId] ?? 0)
+      : 0;
+
+  const openFeaturedDiscussion = () => {
+    if (!featured?.videoId) return;
+    router.push({
+      pathname: '/episode/[videoId]',
+      params: { videoId: featured.videoId, title: featured.title },
+    } as Href);
+  };
 
   return (
     <SafeAreaView style={{ flex: 1 }} edges={['top', 'left', 'right']}>
@@ -78,6 +102,28 @@ export default function WatchScreen() {
             <FeaturedYoutubePlayer videoId={featuredId} />
           )}
         </View>
+
+        {featured?.videoId ? (
+          <Pressable
+            onPress={openFeaturedDiscussion}
+            accessibilityRole="button"
+            accessibilityLabel="Open discussion for featured episode"
+            className="mt-2 flex-row items-center justify-center gap-2 rounded-xl border border-zinc-200 bg-white px-4 py-3 active:opacity-90 dark:border-zinc-800 dark:bg-zinc-900"
+          >
+            <IconSymbol
+              name="bubble.left.and.bubble.right.fill"
+              size={18}
+              color="#b45309"
+            />
+            <IvyText className="text-sm font-semibold text-zinc-900 dark:text-white">
+              {featuredCommentCount === 0
+                ? 'Join the discussion'
+                : featuredCommentCount === 1
+                  ? '1 comment · Join the discussion'
+                  : `${featuredCommentCount} comments · Join the discussion`}
+            </IvyText>
+          </Pressable>
+        ) : null}
 
         {isError ? (
           <IvyText className="mt-2 text-xs text-red-600 dark:text-red-400">

@@ -1,4 +1,5 @@
 import { router } from './trpc';
+import { episodeThreadRouter } from './routers/episode-thread';
 import { feedRouter } from './routers/feed';
 import { healthRouter } from './routers/health';
 import { liveEventRouter } from './routers/live-event';
@@ -6,6 +7,7 @@ import { userRouter } from './routers/user';
 import { youtubeRouter } from './routers/youtube';
 
 export const appRouter = router({
+  episodeThread: episodeThreadRouter,
   feed: feedRouter,
   health: healthRouter,
   liveEvent: liveEventRouter,

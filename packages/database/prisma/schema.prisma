@@ -23,9 +23,10 @@ model User {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  posts        FeedPost[]
-  postLikes    FeedPostLike[]
-  postComments FeedPostComment[]
+  posts           FeedPost[]
+  postLikes       FeedPostLike[]
+  postComments    FeedPostComment[]
+  episodeComments EpisodeComment[]
 }
 
 model FeedPost {
@@ -66,6 +67,22 @@ model FeedPostComment {
 
   @@index([postId])
   @@index([createdAt])
+}
+
+/// Flat discussion thread anchored to a YouTube video. The "thread" itself is implicit —
+/// it's simply the set of EpisodeComment rows sharing a `youtubeVideoId`. No parent record
+/// is created until the first comment, which keeps us from pre-seeding for every playlist item.
+model EpisodeComment {
+  id             String   @id @default(cuid())
+  youtubeVideoId String
+  authorId       String
+  body           String   @db.Text
+  createdAt      DateTime @default(now())
+
+  author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([youtubeVideoId, createdAt])
+  @@index([authorId])
 }
 
 /// Scheduled Monday Mentorship Moment live streams (monthly live event + weekly drops).

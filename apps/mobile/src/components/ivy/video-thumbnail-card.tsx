@@ -1,5 +1,5 @@
 import { Image } from 'expo-image';
-import * as Linking from 'expo-linking';
+import { useRouter, type Href } from 'expo-router';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { IconSymbol } from '@/components/ui/icon-symbol';
@@ -27,9 +27,15 @@ export function VideoThumbnailCard({
   thumbnailUrl,
   videoId,
 }: VideoThumbnailCardProps) {
-  const openVideo = () => {
-    const id = videoId?.trim();
-    if (id) void Linking.openURL(`https://www.youtube.com/watch?v=${id}`);
+  const router = useRouter();
+  const id = videoId?.trim() ?? '';
+
+  const openEpisode = () => {
+    if (!id) return;
+    router.push({
+      pathname: '/episode/[videoId]',
+      params: { videoId: id, title },
+    } as Href);
   };
 
   const thumbUri = thumbnailUrl?.trim()
@@ -77,9 +83,14 @@ export function VideoThumbnailCard({
     </View>
   );
 
-  if (videoId?.trim()) {
+  if (id) {
     return (
-      <Pressable onPress={openVideo} className="active:opacity-90">
+      <Pressable
+        onPress={openEpisode}
+        accessibilityRole="button"
+        accessibilityLabel={`Open discussion for ${title}`}
+        className="active:opacity-90"
+      >
         {card}
       </Pressable>
     );

@@ -80,6 +80,10 @@ function RootLayoutNav() {
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="live" options={{ headerShown: false }} />
         <Stack.Screen
+          name="episode/[videoId]"
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
           name="modal"
           options={{ presentation: 'modal', title: 'Modal', headerShown: true }}
         />
