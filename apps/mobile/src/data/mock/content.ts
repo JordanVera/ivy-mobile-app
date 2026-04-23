@@ -20,33 +20,33 @@ export const watchFeedItems = [
   { id: '6', title: 'Executive roundtable', duration: '1:02:10', live: false },
 ] as const;
 
+// Local panoramic poster shared across vault resources – `require` returns an
+// opaque asset id that `expo-image` accepts directly as a `source` value.
+const VAULT_RESOURCE_POSTER = require('@/assets/images/global-exchange-panoramic.jpeg');
+
 export const vaultResources = [
   {
     id: '1',
     title: 'Weekly Asset Planner',
-    imageUrl:
-      'https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=1200&q=80',
+    imageUrl: VAULT_RESOURCE_POSTER,
     url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
   },
   {
     id: '2',
     title: '30 Day Discipline Map',
-    imageUrl:
-      'https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?w=1200&q=80',
+    imageUrl: VAULT_RESOURCE_POSTER,
     url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
   },
   {
     id: '3',
     title: 'Vision Builder',
-    imageUrl:
-      'https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=1200&q=80',
+    imageUrl: VAULT_RESOURCE_POSTER,
     url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
   },
   {
     id: '4',
     title: 'Success Templates',
-    imageUrl:
-      'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=1200&q=80',
+    imageUrl: VAULT_RESOURCE_POSTER,
     url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
   },
 ] as const;

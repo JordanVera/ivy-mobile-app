@@ -16,14 +16,12 @@ import { ScreenHeader } from '@/components/ivy/screen-header';
 import { VideoThumbnailCard } from '@/components/ivy/video-thumbnail-card';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { trpc } from '@/lib/trpc';
+import {
+  getFeaturedPoster,
+  getStackPosterForVideoId,
+} from '@/lib/video-hero-image';
 
 const ACCENT = '#b45309';
-
-function toHttpsThumbnailUri(url: string): string {
-  const t = url.trim();
-  if (t.startsWith('//')) return `https:${t}`;
-  return t;
-}
 
 export default function WatchScreen() {
   const router = useRouter();
@@ -56,9 +54,7 @@ export default function WatchScreen() {
     } as Href);
   };
 
-  const featuredThumb = featured?.thumbnailUrl?.trim()
-    ? toHttpsThumbnailUri(featured.thumbnailUrl)
-    : null;
+  const featuredPoster = getFeaturedPoster();
 
   const featuredCommentLabel =
     featuredCommentCount === 0
@@ -107,14 +103,12 @@ export default function WatchScreen() {
               className="w-full overflow-hidden bg-zinc-200 dark:bg-zinc-900"
               style={styles.heroFrame}
             >
-              {featuredThumb ? (
-                <Image
-                  source={{ uri: featuredThumb }}
-                  style={StyleSheet.absoluteFillObject}
-                  contentFit="cover"
-                  accessible={false}
-                />
-              ) : null}
+              <Image
+                source={featuredPoster}
+                style={StyleSheet.absoluteFillObject}
+                contentFit="cover"
+                accessible={false}
+              />
 
               <LinearGradient
                 colors={[
@@ -217,8 +211,8 @@ export default function WatchScreen() {
               title={item.title}
               duration={item.durationLabel}
               live={item.live}
-              thumbnailUrl={item.thumbnailUrl}
               videoId={item.videoId}
+              posterSource={getStackPosterForVideoId(item.videoId)}
             />
           ))}
         </View>

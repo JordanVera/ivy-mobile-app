@@ -1,4 +1,4 @@
-import { Image } from 'expo-image';
+import { Image, type ImageSource } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter, type Href } from 'expo-router';
 import { Pressable, StyleSheet, View } from 'react-native';
@@ -22,6 +22,12 @@ type VideoThumbnailCardProps = {
   videoId?: string | null;
   /** Optional small uppercase label rendered above the title (defaults to "Watch"/"Live"). */
   eyebrow?: string;
+  /**
+   * Local poster image (from `require(...)`) to use as the card cover. Takes
+   * precedence over `thumbnailUrl` – used in the Watch feed so we can show
+   * portrait editorial photos instead of 16:9 YouTube thumbs.
+   */
+  posterSource?: ImageSource | number | null;
 };
 
 /**
@@ -37,6 +43,7 @@ export function VideoThumbnailCard({
   thumbnailUrl,
   videoId,
   eyebrow,
+  posterSource,
 }: VideoThumbnailCardProps) {
   const router = useRouter();
   const id = videoId?.trim() ?? '';
@@ -49,9 +56,11 @@ export function VideoThumbnailCard({
     } as Href);
   };
 
-  const thumbUri = thumbnailUrl?.trim()
+  const remoteUri = thumbnailUrl?.trim()
     ? toHttpsThumbnailUri(thumbnailUrl)
     : null;
+  const imageSource: ImageSource | number | null =
+    posterSource ?? (remoteUri ? { uri: remoteUri } : null);
   const label = eyebrow ?? (live ? 'Live now' : 'Watch');
 
   const card = (
@@ -60,9 +69,9 @@ export function VideoThumbnailCard({
         className="w-full overflow-hidden bg-zinc-200 dark:bg-zinc-900"
         style={styles.thumbArea}
       >
-        {thumbUri ? (
+        {imageSource ? (
           <Image
-            source={{ uri: thumbUri }}
+            source={imageSource}
             style={StyleSheet.absoluteFillObject}
             contentFit="cover"
             accessible={false}

@@ -1,4 +1,4 @@
-import { Image } from 'expo-image';
+import { Image, type ImageSource } from 'expo-image';
 import {
   openBrowserAsync,
   WebBrowserPresentationStyle,
@@ -9,12 +9,28 @@ import { IconSymbol } from '@/components/ui/icon-symbol';
 
 import { IvyText } from './ivy-text';
 
+/**
+ * Accepts either a remote URL (string) or a local `require`'d asset (number)
+ * or an `expo-image` `ImageSource` object.
+ */
+type ResourceImage = string | number | ImageSource | null | undefined;
+
 type ResourceRowProps = {
   title: string;
-  imageUrl?: string;
+  imageUrl?: ResourceImage;
   url?: string;
   onPress?: () => void;
 };
+
+function resolveImageSource(input: ResourceImage): ImageSource | number | null {
+  if (input == null) return null;
+  if (typeof input === 'number') return input;
+  if (typeof input === 'string') {
+    const trimmed = input.trim();
+    return trimmed ? { uri: trimmed } : null;
+  }
+  return input;
+}
 
 export function ResourceRow({
   title,
@@ -35,7 +51,9 @@ export function ResourceRow({
     }
   };
 
-  if (imageUrl?.trim()) {
+  const imageSource = resolveImageSource(imageUrl);
+
+  if (imageSource) {
     return (
       <Pressable
         onPress={openResource}
@@ -45,7 +63,7 @@ export function ResourceRow({
       >
         <View className="relative w-full" style={styles.imageArea}>
           <Image
-            source={{ uri: imageUrl.trim() }}
+            source={imageSource}
             style={StyleSheet.absoluteFillObject}
             contentFit="cover"
             accessible={false}
