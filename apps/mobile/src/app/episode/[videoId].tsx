@@ -124,6 +124,12 @@ export default function EpisodeScreen() {
 
   const comments = threadQuery.data?.comments ?? [];
   const commentCount = comments.length;
+  const commentLabel =
+    commentCount === 0
+      ? 'Be the first'
+      : commentCount === 1
+        ? '1 comment'
+        : `${commentCount} comments`;
 
   return (
     <>
@@ -139,86 +145,89 @@ export default function EpisodeScreen() {
           keyboardVerticalOffset={0}
         >
           <View className="flex-1 bg-zinc-50 dark:bg-zinc-950">
-            <View className="flex-row items-center justify-between px-4 py-2">
-              <Pressable
-                onPress={goBack}
-                hitSlop={12}
-                accessibilityLabel="Back"
-                className="h-10 w-10 items-center justify-center rounded-full"
-              >
-                <IconSymbol name="chevron.left" size={24} color={ACCENT} />
-              </Pressable>
-              <IvyText className="text-sm font-semibold uppercase tracking-wider text-zinc-900 dark:text-white">
-                Discussion
-              </IvyText>
-              <View className="h-10 w-10" />
-            </View>
-
             <ScrollView
               ref={scrollRef}
               style={{ flex: 1 }}
-              contentContainerStyle={{
-                paddingHorizontal: 16,
-                paddingBottom: 24,
-              }}
+              contentContainerStyle={{ paddingBottom: 32 }}
               showsVerticalScrollIndicator={false}
               keyboardShouldPersistTaps="handled"
             >
-              <View className="mt-2">
+              <View className="relative w-full bg-black">
                 <FeaturedYoutubePlayer videoId={videoId} />
+
+                <View className="absolute left-3 top-3 z-20">
+                  <Pressable
+                    onPress={goBack}
+                    hitSlop={12}
+                    accessibilityLabel="Back"
+                    className="h-9 w-9 items-center justify-center rounded-full bg-black/55 active:opacity-80"
+                  >
+                    <IconSymbol name="chevron.left" size={20} color="#fff" />
+                  </Pressable>
+                </View>
               </View>
 
-              {titleParam ? (
-                <IvyHeading className="mt-4 text-xl leading-tight text-zinc-900 dark:text-white">
-                  {titleParam}
-                </IvyHeading>
-              ) : null}
+              <View className="px-5 pt-6">
+                <View className="items-center">
+                  <IvyText className="text-[10px] font-semibold uppercase tracking-[3px] text-amber-700 dark:text-amber-500">
+                    Episode
+                  </IvyText>
+                  <View className="mt-2 h-px w-10 bg-amber-700 dark:bg-amber-500" />
+                </View>
 
-              <View className="mt-5 flex-row items-center justify-between">
-                <IvyText className="text-xs font-semibold uppercase tracking-widest text-zinc-500 dark:text-zinc-400">
-                  Thread
+                {titleParam ? (
+                  <IvyHeading
+                    level="brand"
+                    className="mt-5 text-center text-[26px] leading-[1.2] text-zinc-900 dark:text-white"
+                  >
+                    {titleParam}
+                  </IvyHeading>
+                ) : null}
+              </View>
+
+              <View className="mx-5 mt-8 border-t border-zinc-200 dark:border-zinc-800" />
+
+              <View className="mx-5 mt-6 flex-row items-center justify-between">
+                <IvyText className="text-[10px] font-semibold uppercase tracking-[3px] text-zinc-500 dark:text-zinc-400">
+                  Discussion
                 </IvyText>
                 <View className="flex-row items-center gap-1.5">
                   {threadQuery.isFetching && !threadQuery.isLoading ? (
                     <ActivityIndicator size="small" color={ACCENT} />
                   ) : null}
-                  <IvyText className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
-                    {commentCount === 0
-                      ? 'Be the first to comment'
-                      : commentCount === 1
-                        ? '1 comment'
-                        : `${commentCount} comments`}
+                  <IvyText className="text-[11px] font-medium text-zinc-500 dark:text-zinc-400">
+                    {commentLabel}
                   </IvyText>
                 </View>
               </View>
 
-              <View className="mt-2 rounded-2xl border border-zinc-200 bg-white px-4 dark:border-zinc-800 dark:bg-zinc-900">
+              <View className="mx-5 mt-2">
                 {threadQuery.isLoading ? (
-                  <View className="items-center py-8">
+                  <View className="items-center py-10">
                     <ActivityIndicator color={ACCENT} />
                   </View>
                 ) : threadQuery.isError ? (
-                  <View className="py-4">
+                  <View className="py-6">
                     <IvyText className="text-sm text-red-600 dark:text-red-400">
                       {threadQuery.error.message}
                     </IvyText>
                     <Pressable
                       onPress={() => void threadQuery.refetch()}
-                      className="mt-3 self-start rounded-xl bg-zinc-100 px-4 py-2 dark:bg-zinc-800"
+                      className="mt-3 self-start rounded-full border border-zinc-300 px-4 py-2 dark:border-zinc-700"
                     >
-                      <IvyText className="text-sm font-medium text-zinc-900 dark:text-white">
+                      <IvyText className="text-[11px] font-semibold uppercase tracking-[2px] text-zinc-900 dark:text-white">
                         Retry
                       </IvyText>
                     </Pressable>
                   </View>
                 ) : comments.length === 0 ? (
-                  <View className="items-center py-8">
+                  <View className="items-center py-10">
                     <IconSymbol
                       name="bubble.left.and.bubble.right.fill"
-                      size={28}
+                      size={26}
                       color="#a1a1aa"
                     />
-                    <IvyText className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
+                    <IvyText className="mt-3 text-sm text-zinc-500 dark:text-zinc-400">
                       No comments yet. Start the conversation.
                     </IvyText>
                   </View>
@@ -228,7 +237,7 @@ export default function EpisodeScreen() {
                       key={c.id}
                       className={
                         idx < comments.length - 1
-                          ? 'border-b border-zinc-100 dark:border-zinc-800'
+                          ? 'border-b border-zinc-200 dark:border-zinc-800'
                           : ''
                       }
                     >
@@ -250,7 +259,7 @@ export default function EpisodeScreen() {
                 )}
               </View>
 
-              <View className="mt-4">
+              <View className="mx-5 mt-6">
                 <EpisodeCommentComposer
                   disabledReason={composerDisabledReason}
                   onSubmit={handleSubmit}

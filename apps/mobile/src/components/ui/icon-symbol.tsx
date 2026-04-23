@@ -34,6 +34,7 @@ const MAPPING = {
   'checkmark.circle.fill': 'check-circle',
   'dot.radiowaves.left.and.right': 'podcasts',
   'play.rectangle.fill': 'play-circle-filled',
+  'play.fill': 'play-arrow',
   'chevron.left': 'chevron-left',
 } as const satisfies IconMapping;
 

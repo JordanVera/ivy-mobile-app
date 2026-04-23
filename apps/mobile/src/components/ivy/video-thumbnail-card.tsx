@@ -1,9 +1,11 @@
 import { Image } from 'expo-image';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter, type Href } from 'expo-router';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { IconSymbol } from '@/components/ui/icon-symbol';
 
+import { IvyHeading } from './ivy-heading';
 import { IvyText } from './ivy-text';
 
 function toHttpsThumbnailUri(url: string): string {
@@ -18,14 +20,23 @@ type VideoThumbnailCardProps = {
   live?: boolean;
   thumbnailUrl?: string | null;
   videoId?: string | null;
+  /** Optional small uppercase label rendered above the title (defaults to "Watch"/"Live"). */
+  eyebrow?: string;
 };
 
+/**
+ * Editorial, photo-forward card used in the Watch feed.
+ * Single column, full-width thumbnail with a serif title beneath – styled after
+ * the cover blocks in Vogue's mobile app where imagery dominates and text
+ * supports.
+ */
 export function VideoThumbnailCard({
   title,
   duration,
   live,
   thumbnailUrl,
   videoId,
+  eyebrow,
 }: VideoThumbnailCardProps) {
   const router = useRouter();
   const id = videoId?.trim() ?? '';
@@ -41,11 +52,12 @@ export function VideoThumbnailCard({
   const thumbUri = thumbnailUrl?.trim()
     ? toHttpsThumbnailUri(thumbnailUrl)
     : null;
+  const label = eyebrow ?? (live ? 'Live now' : 'Watch');
 
   const card = (
-    <View className="mb-3 overflow-hidden rounded-2xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
+    <View className="mb-8">
       <View
-        className="w-full bg-zinc-200 dark:bg-zinc-950"
+        className="w-full overflow-hidden bg-zinc-200 dark:bg-zinc-900"
         style={styles.thumbArea}
       >
         {thumbUri ? (
@@ -56,29 +68,51 @@ export function VideoThumbnailCard({
             accessible={false}
           />
         ) : null}
+
+        <LinearGradient
+          colors={['rgba(0,0,0,0)', 'rgba(0,0,0,0.45)']}
+          start={{ x: 0.5, y: 0 }}
+          end={{ x: 0.5, y: 1 }}
+          style={StyleSheet.absoluteFillObject}
+          pointerEvents="none"
+        />
+
         <View
           pointerEvents="none"
           className="items-center justify-center"
           style={StyleSheet.absoluteFillObject}
         >
-          <IconSymbol name="play.circle.fill" size={40} color="#b45309" />
-        </View>
-        {live ? (
-          <View className="absolute left-2 top-2 z-10 rounded bg-red-600 px-2 py-0.5">
-            <IvyText className="text-xs font-bold text-white">LIVE</IvyText>
+          <View className="h-14 w-14 items-center justify-center rounded-full bg-white/90">
+            <IconSymbol name="play.fill" size={22} color="#000" />
           </View>
-        ) : null}
+        </View>
+
+        {live ? (
+          <View className="absolute left-3 top-3 z-10 flex-row items-center gap-1.5 rounded-sm bg-red-600 px-2 py-0.5">
+            <View className="h-1.5 w-1.5 rounded-full bg-white" />
+            <IvyText className="text-[10px] font-bold uppercase tracking-widest text-white">
+              Live
+            </IvyText>
+          </View>
+        ) : (
+          <View className="absolute bottom-3 right-3 z-10 rounded-sm bg-black/60 px-2 py-0.5">
+            <IvyText className="text-[11px] font-medium tracking-wide text-white">
+              {duration}
+            </IvyText>
+          </View>
+        )}
       </View>
-      <View className="p-2">
-        <IvyText
-          className="text-sm font-semibold text-zinc-900 dark:text-white"
-          numberOfLines={2}
+
+      <View className="px-4 pt-3">
+        <IvyText className="text-[10px] font-semibold uppercase tracking-[2px] text-amber-700 dark:text-amber-500">
+          {label}
+        </IvyText>
+        <IvyHeading
+          className="mt-1.5 text-[22px] leading-[1.2] text-zinc-900 dark:text-white"
+          numberOfLines={3}
         >
           {title}
-        </IvyText>
-        <IvyText className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-          {duration}
-        </IvyText>
+        </IvyHeading>
       </View>
     </View>
   );
@@ -89,7 +123,7 @@ export function VideoThumbnailCard({
         onPress={openEpisode}
         accessibilityRole="button"
         accessibilityLabel={`Open discussion for ${title}`}
-        className="active:opacity-90"
+        className="active:opacity-80"
       >
         {card}
       </Pressable>
@@ -102,7 +136,7 @@ export function VideoThumbnailCard({
 const styles = StyleSheet.create({
   thumbArea: {
     width: '100%',
-    aspectRatio: 16 / 9,
+    aspectRatio: 4 / 5,
     position: 'relative',
     overflow: 'hidden',
   },
