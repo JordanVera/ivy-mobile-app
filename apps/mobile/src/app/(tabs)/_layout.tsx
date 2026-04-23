@@ -7,7 +7,7 @@ import { useIvyColorScheme } from '@/hooks/use-ivy-color-scheme';
 
 export default function TabLayout() {
   const scheme = useIvyColorScheme();
-  const active = '#b45309';
+  const active = '#00FA9A';
   const inactive = scheme === 'dark' ? '#71717a' : '#a1a1aa';
   const tabBg = scheme === 'dark' ? '#09090b' : '#ffffff';
   const border = scheme === 'dark' ? '#27272a' : '#e4e4e7';

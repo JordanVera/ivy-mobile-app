@@ -182,9 +182,9 @@ export function LiveEventHomeCard({
         >
           <LinearGradient
             colors={[
-              'rgba(245, 158, 11, 0)',
-              'rgba(245, 158, 11, 0.35)',
-              'rgba(245, 158, 11, 0)',
+              'rgba(0, 250, 154, 0)',
+              'rgba(0, 250, 154, 0.40)',
+              'rgba(0, 250, 154, 0)',
             ]}
             start={{ x: 0, y: 0.5 }}
             end={{ x: 1, y: 0.5 }}
@@ -219,9 +219,9 @@ export function LiveEventHomeCard({
                 <IconSymbol
                   name="dot.radiowaves.left.and.right"
                   size={11}
-                  color="#fcd34d"
+                  color="#00FA9A"
                 />
-                <IvyText className="text-[10px] font-bold uppercase tracking-[2.5px] text-amber-200">
+                <IvyText className="text-[10px] font-bold uppercase tracking-[2.5px] text-[#00FA9A]">
                   {isUpcoming ? 'Up Next · Live' : 'Featured'}
                 </IvyText>
               </View>
@@ -237,7 +237,7 @@ export function LiveEventHomeCard({
           </View>
 
           <View>
-            <IvyText className="text-[10px] font-semibold uppercase tracking-[3px] text-amber-300">
+            <IvyText className="text-[10px] font-semibold uppercase tracking-[3px] text-[#00FA9A]">
               Monday Mentorship Moment
             </IvyText>
             <IvyHeading
@@ -287,7 +287,7 @@ export function LiveEventHomeCard({
 
 /**
  * Compact editorial countdown rendered over the dark scrim of the hero. White
- * numerals, amber micro-labels, with a gentle tick pulse on the seconds so the
+ * numerals, spring-green micro-labels, with a gentle tick pulse on the seconds so the
  * card feels alive.
  */
 function HeroCountdown({ target }: { target: string | Date }) {
@@ -340,7 +340,7 @@ function HeroCountdown({ target }: { target: string | Date }) {
                 {pad(p.value)}
               </IvyHeading>
             )}
-            <IvyText className="mt-1.5 text-[9px] font-semibold uppercase tracking-[2px] text-amber-300">
+            <IvyText className="mt-1.5 text-[9px] font-semibold uppercase tracking-[2px] text-[#00FA9A]">
               {p.label}
             </IvyText>
           </View>
