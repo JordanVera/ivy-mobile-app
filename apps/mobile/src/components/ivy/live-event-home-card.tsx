@@ -1,3 +1,4 @@
+import { Image, type ImageSource } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter, type Href } from 'expo-router';
 import { useEffect } from 'react';
@@ -12,8 +13,6 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
-import { GoldGradientButton } from '@/components/ivy/gold-gradient-button';
-import { IvyCard } from '@/components/ivy/ivy-card';
 import { IvyHeading } from '@/components/ivy/ivy-heading';
 import { IvyText } from '@/components/ivy/ivy-text';
 import { IconSymbol } from '@/components/ui/icon-symbol';
@@ -21,6 +20,8 @@ import { useCountdown } from '@/hooks/use-countdown';
 import { trpc } from '@/lib/trpc';
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
+
+const DEFAULT_HERO_IMAGE: number = require('@/assets/images/ivy-oprah-1.jpeg');
 
 function formatEventDate(iso: string): string {
   try {
@@ -41,12 +42,20 @@ function pad(n: number): string {
   return String(Math.max(0, n)).padStart(2, '0');
 }
 
+type LiveEventHomeCardProps = {
+  /** Optional override for the hero backdrop. Defaults to the curated Ivy photo. */
+  heroImage?: number | ImageSource;
+};
+
 /**
- * Hero card for the Home screen. Full-width, countdown-forward layout with a
- * subtle animated gold shimmer, a pulsing LIVE indicator when on-air, and a
- * gentle per-second tick on the countdown to keep the card feeling alive.
+ * Full-bleed, photo-forward hero for the Home screen — editorial in the style
+ * of a Vogue cover. Keeps the existing near-realtime countdown + pulsing LIVE
+ * indicator, but renders them over a portrait backdrop with a dark gradient
+ * scrim instead of the previous white card chrome.
  */
-export function LiveEventHomeCard() {
+export function LiveEventHomeCard({
+  heroImage = DEFAULT_HERO_IMAGE,
+}: LiveEventHomeCardProps = {}) {
   const router = useRouter();
   const query = trpc.liveEvent.next.useQuery(undefined, {
     staleTime: 30_000,
@@ -89,14 +98,16 @@ export function LiveEventHomeCard() {
   }));
 
   const shimmerStyle = useAnimatedStyle(() => ({
-    opacity: interpolate(shimmer.value, [0, 1], [0.35, 0.75]),
-    transform: [{ translateX: interpolate(shimmer.value, [0, 1], [-40, 40]) }],
+    opacity: interpolate(shimmer.value, [0, 1], [0.1, 0.35]),
+    transform: [{ translateX: interpolate(shimmer.value, [0, 1], [-60, 60]) }],
   }));
 
   const livePulseStyle = useAnimatedStyle(() => ({
-    opacity: interpolate(pulse.value, [0, 1], [0.35, 1]),
-    transform: [{ scale: interpolate(pulse.value, [0, 1], [0.9, 1.15]) }],
+    opacity: interpolate(pulse.value, [0, 1], [0.45, 1]),
+    transform: [{ scale: interpolate(pulse.value, [0, 1], [0.92, 1.12]) }],
   }));
+
+  const title = event?.title ?? 'Monday Mentorship Moment';
 
   return (
     <AnimatedPressable
@@ -104,16 +115,40 @@ export function LiveEventHomeCard() {
       onPressIn={() => (press.value = withTiming(1, { duration: 120 }))}
       onPressOut={() => (press.value = withTiming(0, { duration: 160 }))}
       accessibilityRole="button"
+      accessibilityLabel={isLive ? 'Join live event' : 'View upcoming event'}
       style={pressStyle}
     >
-      <IvyCard className="mb-6 overflow-hidden p-0">
-        <LinearGradient
-          colors={['rgba(180, 83, 9, 0.08)', 'rgba(245, 158, 11, 0)']}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
+      <View
+        className="w-full overflow-hidden bg-zinc-900"
+        style={styles.heroFrame}
+      >
+        <Image
+          source={heroImage}
           style={StyleSheet.absoluteFillObject}
+          contentFit="cover"
+          accessible={false}
+        />
+
+        <LinearGradient
+          colors={['rgba(0,0,0,0.55)', 'rgba(0,0,0,0)']}
+          start={{ x: 0.5, y: 0 }}
+          end={{ x: 0.5, y: 1 }}
+          style={[StyleSheet.absoluteFillObject, { bottom: undefined, height: '30%' }]}
           pointerEvents="none"
         />
+        <LinearGradient
+          colors={[
+            'rgba(0,0,0,0)',
+            'rgba(0,0,0,0.35)',
+            'rgba(0,0,0,0.9)',
+          ]}
+          locations={[0, 0.45, 1]}
+          start={{ x: 0.5, y: 0 }}
+          end={{ x: 0.5, y: 1 }}
+          style={[StyleSheet.absoluteFillObject, { top: '35%' }]}
+          pointerEvents="none"
+        />
+
         <Animated.View
           pointerEvents="none"
           style={[styles.shimmerWrap, shimmerStyle]}
@@ -121,7 +156,7 @@ export function LiveEventHomeCard() {
           <LinearGradient
             colors={[
               'rgba(245, 158, 11, 0)',
-              'rgba(245, 158, 11, 0.18)',
+              'rgba(245, 158, 11, 0.35)',
               'rgba(245, 158, 11, 0)',
             ]}
             start={{ x: 0, y: 0.5 }}
@@ -130,10 +165,13 @@ export function LiveEventHomeCard() {
           />
         </Animated.View>
 
-        <View className="px-5 pb-5 pt-5">
-          <View className="flex-row items-center justify-between">
+        <View
+          className="absolute inset-0 z-10 justify-between"
+          style={styles.contentPadding}
+        >
+          <View className="flex-row items-start justify-between">
             {isLive ? (
-              <View className="flex-row items-center gap-1.5 self-start rounded-full bg-red-600 px-2.5 py-1">
+              <View className="flex-row items-center gap-1.5 rounded-sm bg-red-600 px-2.5 py-1">
                 <Animated.View
                   style={[
                     {
@@ -145,68 +183,86 @@ export function LiveEventHomeCard() {
                     livePulseStyle,
                   ]}
                 />
-                <IvyText className="text-[10px] font-bold uppercase tracking-widest text-white">
+                <IvyText className="text-[10px] font-bold uppercase tracking-[2.5px] text-white">
                   Live Now
                 </IvyText>
               </View>
             ) : (
-              <View className="flex-row items-center gap-1.5 self-start rounded-full border border-amber-500/30 bg-amber-500/10 px-2.5 py-1">
+              <View className="flex-row items-center gap-1.5 rounded-sm bg-black/55 px-2.5 py-1">
                 <IconSymbol
                   name="dot.radiowaves.left.and.right"
                   size={11}
-                  color="#b45309"
+                  color="#fcd34d"
                 />
-                <IvyText className="text-[10px] font-bold uppercase tracking-widest text-amber-700 dark:text-amber-400">
+                <IvyText className="text-[10px] font-bold uppercase tracking-[2.5px] text-amber-200">
                   {isUpcoming ? 'Up Next · Live' : 'Featured'}
                 </IvyText>
               </View>
             )}
 
             {isUpcoming ? (
-              <IvyText className="text-[11px] font-medium text-zinc-500 dark:text-zinc-400">
-                {formatEventDate(event!.startsAt)}
-              </IvyText>
+              <View className="rounded-sm bg-black/45 px-2.5 py-1">
+                <IvyText className="text-[10px] font-medium tracking-wide text-white/90">
+                  {formatEventDate(event!.startsAt)}
+                </IvyText>
+              </View>
             ) : null}
           </View>
 
-          <IvyHeading className="mt-3 text-2xl leading-tight text-zinc-900 dark:text-white">
-            {event?.title ?? 'Monday Mentorship Moment'}
-          </IvyHeading>
-
-          {isUpcoming ? (
-            <View className="mt-5">
-              <HeroCountdown target={event!.startsAt} />
-            </View>
-          ) : isLive ? (
-            <View className="mt-5 items-center">
-              <Animated.View style={livePulseStyle}>
-                <IvyHeading className="text-5xl font-bold tracking-tight text-red-600">
-                  ON AIR
-                </IvyHeading>
-              </Animated.View>
-              <IvyText className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
-                Tap to join the live stream right now.
-              </IvyText>
-            </View>
-          ) : (
-            <IvyText className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
-              Start your week with clarity, discipline, and bold leadership.
+          <View>
+            <IvyText className="text-[10px] font-semibold uppercase tracking-[3px] text-amber-300">
+              Monday Mentorship Moment
             </IvyText>
-          )}
+            <IvyHeading
+              level="brand"
+              className="mt-2 text-[30px] leading-[1.1] text-white"
+              numberOfLines={3}
+            >
+              {title}
+            </IvyHeading>
 
-          <View className="mt-5">
-            <GoldGradientButton
-              title={isLive ? 'Join Live' : 'See Details'}
-              onPress={onPress}
-            />
+            {isUpcoming ? (
+              <View className="mt-5">
+                <HeroCountdown target={event!.startsAt} />
+              </View>
+            ) : isLive ? (
+              <View className="mt-4 flex-row items-center gap-3">
+                <Animated.View style={livePulseStyle}>
+                  <IvyHeading
+                    level="brand"
+                    className="text-[36px] leading-none text-red-500"
+                  >
+                    On Air
+                  </IvyHeading>
+                </Animated.View>
+                <IvyText className="flex-1 text-[13px] leading-5 text-white/80">
+                  Tap to join the stream now
+                </IvyText>
+              </View>
+            ) : (
+              <IvyText className="mt-3 text-[14px] leading-[1.4] text-white/80">
+                Start your week with clarity, discipline, and bold leadership.
+              </IvyText>
+            )}
+
+            <View className="mt-5 flex-row items-center justify-between border-t border-white/20 pt-4">
+              <IvyText className="text-[11px] font-semibold uppercase tracking-[2.5px] text-white">
+                {isLive ? 'Join Live' : 'View Details'}
+              </IvyText>
+              <IconSymbol name="chevron.right" size={16} color="#ffffff" />
+            </View>
           </View>
         </View>
-      </IvyCard>
+      </View>
     </AnimatedPressable>
   );
 }
 
-/** Large, center-aligned countdown with a subtle tick animation on seconds. */
+/**
+ * Compact editorial countdown rendered over the dark scrim of the hero. White
+ * numerals, amber micro-labels, with a gentle tick pulse on the seconds so the
+ * card feels alive.
+ */
 function HeroCountdown({ target }: { target: string | Date }) {
   const { days, hours, minutes, seconds, elapsed } = useCountdown(target);
   const tick = useSharedValue(0);
@@ -219,7 +275,7 @@ function HeroCountdown({ target }: { target: string | Date }) {
   }, [seconds, tick]);
 
   const tickStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: interpolate(tick.value, [0, 1], [1, 1.08]) }],
+    transform: [{ scale: interpolate(tick.value, [0, 1], [1, 1.06]) }],
     opacity: interpolate(tick.value, [0, 1], [1, 0.85]),
   }));
 
@@ -242,23 +298,29 @@ function HeroCountdown({ target }: { target: string | Date }) {
           <View className="items-center">
             {p.animated ? (
               <Animated.View style={tickStyle}>
-                <IvyText className="text-4xl font-bold tabular-nums text-zinc-900 dark:text-white">
+                <IvyHeading
+                  level="brand"
+                  className="text-[32px] leading-none tabular-nums text-white"
+                >
                   {pad(p.value)}
-                </IvyText>
+                </IvyHeading>
               </Animated.View>
             ) : (
-              <IvyText className="text-4xl font-bold tabular-nums text-zinc-900 dark:text-white">
+              <IvyHeading
+                level="brand"
+                className="text-[32px] leading-none tabular-nums text-white"
+              >
                 {pad(p.value)}
-              </IvyText>
+              </IvyHeading>
             )}
-            <IvyText className="mt-1 text-[10px] font-semibold uppercase tracking-widest text-amber-700 dark:text-amber-400">
+            <IvyText className="mt-1.5 text-[9px] font-semibold uppercase tracking-[2px] text-amber-300">
               {p.label}
             </IvyText>
           </View>
           {i < parts.length - 1 ? (
             <IvyText
               style={{ marginBottom: 14 }}
-              className="mx-1 text-2xl font-light text-zinc-300 dark:text-zinc-700"
+              className="mx-1 text-xl font-light text-white/30"
             >
               :
             </IvyText>
@@ -270,7 +332,17 @@ function HeroCountdown({ target }: { target: string | Date }) {
 }
 
 const styles = StyleSheet.create({
+  heroFrame: {
+    width: '100%',
+    aspectRatio: 4 / 5,
+    position: 'relative',
+  },
   shimmerWrap: {
     ...StyleSheet.absoluteFillObject,
+  },
+  contentPadding: {
+    padding: 20,
+    paddingTop: 24,
+    paddingBottom: 22,
   },
 });
