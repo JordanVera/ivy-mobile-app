@@ -23,6 +23,18 @@ const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 const DEFAULT_HERO_IMAGE: number = require('@/assets/images/ivy-oprah-1.jpeg');
 
+/**
+ * Diagonal 4-stop color wash laid over the hero photo. Colors come straight
+ * from the Tailwind palette (orange-400 → pink-500 → purple-500 → cyan-400)
+ * and sit at partial alpha so the image still reads through as a photo.
+ */
+const MAGIC_HOUR_GRADIENT = [
+  'rgba(251, 146, 60, 0.55)',
+  'rgba(236, 72, 153, 0.50)',
+  'rgba(168, 85, 247, 0.50)',
+  'rgba(34, 211, 238, 0.45)',
+] as const;
+
 function formatEventDate(iso: string): string {
   try {
     const d = new Date(iso);
@@ -127,6 +139,21 @@ export function LiveEventHomeCard({
           style={StyleSheet.absoluteFillObject}
           contentFit="cover"
           accessible={false}
+        />
+
+        {/*
+         * "Magic hour" color wash tinted with the Tailwind palette.
+         * Sits directly over the photo, underneath the dark scrims, so the
+         * image still reads through but picks up a rich editorial cast. The
+         * dark bottom scrim below keeps the title / countdown / CTA legible.
+         */}
+        <LinearGradient
+          colors={MAGIC_HOUR_GRADIENT}
+          locations={[0, 0.35, 0.7, 1]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={StyleSheet.absoluteFillObject}
+          pointerEvents="none"
         />
 
         <LinearGradient
