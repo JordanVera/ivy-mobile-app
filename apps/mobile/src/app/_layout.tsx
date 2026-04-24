@@ -21,6 +21,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import '../global.css';
 
 import { ClerkUserSync } from '@/components/clerk-user-sync';
+import { ToastProvider } from '@/components/ivy/toast-provider';
 import {
   IvyDarkNavigationTheme,
   IvyLightNavigationTheme,
@@ -107,7 +108,9 @@ export default function RootLayout() {
       <TrpcProvider>
         <ClerkUserSync />
         <SafeAreaProvider>
-          <RootLayoutNav />
+          <ToastProvider>
+            <RootLayoutNav />
+          </ToastProvider>
         </SafeAreaProvider>
       </TrpcProvider>
     </ClerkProvider>

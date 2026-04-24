@@ -8,6 +8,7 @@ import { HubCard } from '@/components/ivy/hub-card';
 import { IvyHeading } from '@/components/ivy/ivy-heading';
 import { IvyText } from '@/components/ivy/ivy-text';
 import { ScreenHeader } from '@/components/ivy/screen-header';
+import { useToast } from '@/components/ivy/toast-provider';
 import { IconSymbol, type IconSymbolName } from '@/components/ui/icon-symbol';
 import { IvyColors } from '@/constants/ivy-colors';
 import { trpc } from '@/lib/trpc';
@@ -28,7 +29,8 @@ const HUB_VISUALS: Record<
   { imageUrl: string; gradient: GradientStops }
 > = {
   entrepreneurs: {
-    imageUrl: 'https://images.unsplash.com/photo-1556761175-b413da4baf72?w=800&q=80',
+    imageUrl:
+      'https://images.unsplash.com/photo-1556761175-b413da4baf72?w=800&q=80',
     gradient: [
       'rgba(251, 146, 60, 0.60)',
       'rgba(236, 72, 153, 0.50)',
@@ -36,7 +38,8 @@ const HUB_VISUALS: Record<
     ] as const,
   },
   'college-life': {
-    imageUrl: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&q=80',
+    imageUrl:
+      'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&q=80',
     gradient: [
       'rgba(34, 211, 238, 0.55)',
       'rgba(139, 92, 246, 0.50)',
@@ -44,7 +47,8 @@ const HUB_VISUALS: Record<
     ] as const,
   },
   'golden-age': {
-    imageUrl: 'https://images.unsplash.com/photo-1469571486292-0ba58a3f068b?w=800&q=80',
+    imageUrl:
+      'https://images.unsplash.com/photo-1469571486292-0ba58a3f068b?w=800&q=80',
     gradient: [
       'rgba(251, 191, 36, 0.55)',
       'rgba(244, 63, 94, 0.50)',
@@ -52,7 +56,8 @@ const HUB_VISUALS: Record<
     ] as const,
   },
   'ahh-man': {
-    imageUrl: 'https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=800&q=80',
+    imageUrl:
+      'https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=800&q=80',
     gradient: [
       'rgba(99, 102, 241, 0.60)',
       'rgba(59, 130, 246, 0.50)',
@@ -83,14 +88,27 @@ export default function TheNestScreen() {
   const router = useRouter();
   const { isSignedIn } = useAuth();
   const utils = trpc.useUtils();
+  const toast = useToast();
 
   const hubsQuery = trpc.hubs.list.useQuery();
 
   const join = trpc.hubs.join.useMutation({
-    onSuccess: () => void utils.hubs.list.invalidate(),
+    onSuccess: (_data, variables) => {
+      void utils.hubs.list.invalidate();
+      const hub = hubsQuery.data?.find((h) => h.slug === variables.slug);
+      if (hub) {
+        toast.showSuccess(`You joined ${hub.name}!`);
+      }
+    },
   });
   const leave = trpc.hubs.leave.useMutation({
-    onSuccess: () => void utils.hubs.list.invalidate(),
+    onSuccess: (_data, variables) => {
+      void utils.hubs.list.invalidate();
+      const hub = hubsQuery.data?.find((h) => h.slug === variables.slug);
+      if (hub) {
+        toast.showSuccess(`You left ${hub.name}`);
+      }
+    },
   });
 
   const openHub = useCallback(
@@ -152,10 +170,10 @@ export default function TheNestScreen() {
             <IvyText className="mt-2 text-center text-[14px] italic leading-5 text-zinc-600 dark:text-zinc-400">
               Find your people. Find your place.
             </IvyText>
-            <IvyText className="mt-3 max-w-[320px] text-center text-[13px] leading-5 text-zinc-600 dark:text-zinc-400">
+            {/* <IvyText className="mt-3 max-w-[320px] text-center text-[13px] leading-5 text-zinc-600 dark:text-zinc-400">
               Members know these as Hubs or small groups. The Nest houses all
               four: Entrepreneurs, College Life, Golden Age, and Ahh Man.
-            </IvyText>
+            </IvyText> */}
           </View>
 
           {hubsQuery.isLoading ? (
@@ -217,7 +235,9 @@ export default function TheNestScreen() {
 
               {allHubs.length > 0 ? (
                 <>
-                  <View className={`mb-3 flex-row items-end justify-between ${myHubs.length > 0 ? 'mt-8' : 'mt-8'}`}>
+                  <View
+                    className={`mb-3 flex-row items-end justify-between ${myHubs.length > 0 ? 'mt-8' : 'mt-8'}`}
+                  >
                     <IvyText className="text-sm font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
                       All Hubs
                     </IvyText>

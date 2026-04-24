@@ -19,6 +19,7 @@ import { HubMessageRow } from '@/components/ivy/hub-message-row';
 import { HubPlanEventModal } from '@/components/ivy/hub-plan-event-modal';
 import { IvyHeading } from '@/components/ivy/ivy-heading';
 import { IvyText } from '@/components/ivy/ivy-text';
+import { useToast } from '@/components/ivy/toast-provider';
 import { IconSymbol, type IconSymbolName } from '@/components/ui/icon-symbol';
 import { IvyColors } from '@/constants/ivy-colors';
 import { trpc } from '@/lib/trpc';
@@ -109,6 +110,7 @@ export default function HubScreen() {
   const isFocused = useIsFocused();
   const { isSignedIn } = useAuth();
   const utils = trpc.useUtils();
+  const toast = useToast();
   const scrollRef = useRef<ScrollView>(null);
   const [planModalOpen, setPlanModalOpen] = useState(false);
   const [rsvpBusyId, setRsvpBusyId] = useState<string | null>(null);
@@ -140,12 +142,18 @@ export default function HubScreen() {
     onSuccess: () => {
       if (slug) void utils.hubs.get.invalidate({ slug });
       void utils.hubs.list.invalidate();
+      if (hubQuery.data?.name) {
+        toast.showSuccess(`You joined ${hubQuery.data.name}!`);
+      }
     },
   });
   const leave = trpc.hubs.leave.useMutation({
     onSuccess: () => {
       if (slug) void utils.hubs.get.invalidate({ slug });
       void utils.hubs.list.invalidate();
+      if (hubQuery.data?.name) {
+        toast.showSuccess(`You left ${hubQuery.data.name}`);
+      }
     },
   });
 
@@ -177,6 +185,7 @@ export default function HubScreen() {
       if (!slug) return;
       await utils.hubs.messages.cancel({ slug });
       const previous = utils.hubs.messages.getData({ slug });
+      const wasNotJoined = !hubQuery.data?.joined;
       const tempId = `optimistic-${Date.now()}`;
       const optimistic = {
         id: tempId,
@@ -193,7 +202,7 @@ export default function HubScreen() {
           ? { ...prev, messages: [...prev.messages, optimistic] }
           : { slug, messages: [optimistic] },
       );
-      return { previous };
+      return { previous, wasNotJoined };
     },
     onError: (err, _input, context) => {
       if (!slug) return;
@@ -202,10 +211,15 @@ export default function HubScreen() {
       }
       Alert.alert('Could not send message', err.message);
     },
-    onSettled: () => {
+    onSettled: (_data, _error, _variables, context) => {
       if (!slug) return;
       void utils.hubs.messages.invalidate({ slug });
       if (slug) void utils.hubs.get.invalidate({ slug });
+      void utils.hubs.list.invalidate();
+      
+      if (context?.wasNotJoined && hubQuery.data?.name) {
+        toast.showSuccess(`You joined ${hubQuery.data.name}!`);
+      }
     },
   });
 
