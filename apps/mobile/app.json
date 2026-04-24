@@ -48,7 +48,8 @@
         {
           "calendarPermission": "Ivy uses your calendar to add Monday Mentorship Moment events so you never miss a live stream."
         }
-      ]
+      ],
+      "@react-native-community/datetimepicker"
     ],
     "experiments": {
       "typedRoutes": true,

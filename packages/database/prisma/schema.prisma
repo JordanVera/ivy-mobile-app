@@ -29,6 +29,8 @@ model User {
   episodeComments EpisodeComment[]
   hubMemberships  HubMembership[]
   hubMessages     HubMessage[]
+  hubEventsCreated HubEvent[]
+  hubEventRsvps   HubEventRsvp[]
 }
 
 model FeedPost {
@@ -103,8 +105,52 @@ model Hub {
 
   memberships HubMembership[]
   messages    HubMessage[]
+  events      HubEvent[]
 
   @@index([sortOrder])
+}
+
+enum HubEventFormat {
+  IN_PERSON
+  ONLINE
+}
+
+/// Member-planned hub gatherings: in-person (location) or online (meeting URL).
+model HubEvent {
+  id          String         @id @default(cuid())
+  hubId       String
+  creatorId   String
+  title       String
+  description String?        @db.Text
+  format      HubEventFormat
+  startsAt    DateTime
+  endsAt      DateTime
+  /// Physical address or venue name when `format` is IN_PERSON.
+  location    String?        @db.Text
+  /// Zoom, Google Meet, or other join URL when `format` is ONLINE.
+  meetingUrl  String?        @db.VarChar(2048)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  hub     Hub             @relation(fields: [hubId], references: [id], onDelete: Cascade)
+  creator User            @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  rsvps   HubEventRsvp[]
+
+  @@index([hubId, startsAt])
+  @@index([creatorId])
+}
+
+model HubEventRsvp {
+  id         String   @id @default(cuid())
+  hubEventId String
+  userId     String
+  createdAt  DateTime @default(now())
+
+  event HubEvent @relation(fields: [hubEventId], references: [id], onDelete: Cascade)
+  user  User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([hubEventId, userId])
+  @@index([userId])
 }
 
 model HubMembership {

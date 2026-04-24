@@ -46,6 +46,10 @@ const MAPPING = {
   'paperplane.circle.fill': 'send',
   'plus.circle.fill': 'add-circle',
   'arrow.right': 'arrow-forward',
+  'mappin.and.ellipse': 'place',
+  link: 'link',
+  'video.fill': 'videocam',
+  xmark: 'close',
 } as const satisfies IconMapping;
 
 export type IconSymbolName = keyof typeof MAPPING;
