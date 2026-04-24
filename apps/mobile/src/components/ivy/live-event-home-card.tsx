@@ -16,6 +16,7 @@ import Animated, {
 import { IvyHeading } from '@/components/ivy/ivy-heading';
 import { IvyText } from '@/components/ivy/ivy-text';
 import { IconSymbol } from '@/components/ui/icon-symbol';
+import { IvyColors } from '@/constants/ivy-colors';
 import { useCountdown } from '@/hooks/use-countdown';
 import { trpc } from '@/lib/trpc';
 
@@ -160,15 +161,14 @@ export function LiveEventHomeCard({
           colors={['rgba(0,0,0,0.55)', 'rgba(0,0,0,0)']}
           start={{ x: 0.5, y: 0 }}
           end={{ x: 0.5, y: 1 }}
-          style={[StyleSheet.absoluteFillObject, { bottom: undefined, height: '30%' }]}
+          style={[
+            StyleSheet.absoluteFillObject,
+            { bottom: undefined, height: '30%' },
+          ]}
           pointerEvents="none"
         />
         <LinearGradient
-          colors={[
-            'rgba(0,0,0,0)',
-            'rgba(0,0,0,0.35)',
-            'rgba(0,0,0,0.9)',
-          ]}
+          colors={['rgba(0,0,0,0)', 'rgba(0,0,0,0.35)', 'rgba(0,0,0,0.9)']}
           locations={[0, 0.45, 1]}
           start={{ x: 0.5, y: 0 }}
           end={{ x: 0.5, y: 1 }}
@@ -219,9 +219,9 @@ export function LiveEventHomeCard({
                 <IconSymbol
                   name="dot.radiowaves.left.and.right"
                   size={11}
-                  color="#00FA9A"
+                  color={IvyColors.accent}
                 />
-                <IvyText className="text-[10px] font-bold uppercase tracking-[2.5px] text-[#00FA9A]">
+                <IvyText className="text-[10px] font-bold uppercase tracking-[2.5px] text-ivy-accent">
                   {isUpcoming ? 'Up Next · Live' : 'Featured'}
                 </IvyText>
               </View>
@@ -237,7 +237,7 @@ export function LiveEventHomeCard({
           </View>
 
           <View>
-            <IvyText className="text-[10px] font-semibold uppercase tracking-[3px] text-[#00FA9A]">
+            <IvyText className="text-[10px] font-semibold uppercase tracking-[3px] text-ivy-accent">
               Monday Mentorship Moment
             </IvyText>
             <IvyHeading
@@ -340,7 +340,7 @@ function HeroCountdown({ target }: { target: string | Date }) {
                 {pad(p.value)}
               </IvyHeading>
             )}
-            <IvyText className="mt-1.5 text-[9px] font-semibold uppercase tracking-[2px] text-[#00FA9A]">
+            <IvyText className="mt-1.5 text-[9px] font-semibold uppercase tracking-[2px] text-ivy-accent">
               {p.label}
             </IvyText>
           </View>

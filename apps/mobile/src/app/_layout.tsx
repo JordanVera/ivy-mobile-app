@@ -79,6 +79,7 @@ function RootLayoutNav() {
         <Stack.Screen name="(auth)" />
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="live" options={{ headerShown: false }} />
+        <Stack.Screen name="testimonials" options={{ headerShown: false }} />
         <Stack.Screen
           name="episode/[videoId]"
           options={{ headerShown: false }}

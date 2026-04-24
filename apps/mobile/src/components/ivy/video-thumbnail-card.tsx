@@ -113,7 +113,7 @@ export function VideoThumbnailCard({
       </View>
 
       <View className="px-4 pt-3">
-        <IvyText className="text-[10px] font-semibold uppercase tracking-[2px] text-amber-700 dark:text-amber-500">
+        <IvyText className="text-[10px] font-semibold uppercase tracking-[2px] text-ivy-accent">
           {label}
         </IvyText>
         <IvyHeading

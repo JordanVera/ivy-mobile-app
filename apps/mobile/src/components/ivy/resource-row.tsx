@@ -6,6 +6,7 @@ import {
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { IconSymbol } from '@/components/ui/icon-symbol';
+import { IvyColors } from '@/constants/ivy-colors';
 
 import { IvyText } from './ivy-text';
 
@@ -80,11 +81,11 @@ export function ResourceRow({
               {title}
             </IvyText>
             <View className="shrink-0 flex-row items-center gap-1">
-              <IconSymbol name="doc.fill" size={15} color="#fef3c7" />
-              <IvyText className="text-xs font-medium text-amber-100">
+              <IconSymbol name="doc.fill" size={15} color={IvyColors.accent} />
+              <IvyText className="text-xs font-medium text-ivy-accent">
                 PDF
               </IvyText>
-              <IconSymbol name="chevron.right" size={18} color="#fef3c7" />
+              <IconSymbol name="chevron.right" size={18} color={IvyColors.accent} />
             </View>
           </View>
         </View>
@@ -97,8 +98,8 @@ export function ResourceRow({
       onPress={openResource}
       className="mb-2 flex-row items-center gap-3 rounded-xl border border-zinc-200 bg-white p-3 dark:border-zinc-800 dark:bg-zinc-900 active:opacity-80"
     >
-      <View className="h-12 w-12 items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-950/50">
-        <IconSymbol name="archivebox.fill" size={26} color="#b45309" />
+      <View className="h-12 w-12 items-center justify-center rounded-lg bg-ivy-accent/15 dark:bg-ivy-accent/20">
+        <IconSymbol name="archivebox.fill" size={26} color={IvyColors.accent} />
       </View>
       <IvyText className="flex-1 text-base font-medium text-zinc-900 dark:text-white">
         {title}

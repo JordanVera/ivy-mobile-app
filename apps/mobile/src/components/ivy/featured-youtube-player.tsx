@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Platform, Pressable, View } from 'react-native';
 import YoutubePlayer from 'react-native-youtube-iframe';
 
+import { IvyColors } from '@/constants/ivy-colors';
 import { YOUTUBE_PLACEHOLDER_VIDEO_ID } from '@/constants/youtube';
 
 import { IvyText } from './ivy-text';
@@ -32,7 +33,7 @@ export function FeaturedYoutubePlayer({ videoId }: FeaturedYoutubePlayerProps) {
       <View className="aspect-video w-full items-center justify-center rounded-xl bg-zinc-200 dark:bg-zinc-800">
         <Pressable
           onPress={openYoutube}
-          className="rounded-xl bg-amber-600 px-4 py-3 active:opacity-90 dark:bg-amber-500"
+          className="rounded-xl bg-ivy-accent px-4 py-3 active:opacity-90"
         >
           <IvyText className="font-semibold text-white">Open in YouTube (web)</IvyText>
         </Pressable>
@@ -47,7 +48,7 @@ export function FeaturedYoutubePlayer({ videoId }: FeaturedYoutubePlayerProps) {
           Could not load the player.
         </IvyText>
         <Pressable onPress={openYoutube}>
-          <IvyText className="font-semibold text-amber-600 dark:text-amber-400">
+          <IvyText className="font-semibold text-ivy-accent">
             Open in YouTube
           </IvyText>
         </Pressable>
@@ -62,7 +63,7 @@ export function FeaturedYoutubePlayer({ videoId }: FeaturedYoutubePlayerProps) {
           className="absolute left-0 right-0 top-0 z-10 items-center justify-center bg-zinc-900"
           style={{ height: 220 }}
         >
-          <ActivityIndicator color="#fbbf24" size="large" />
+          <ActivityIndicator color={IvyColors.accent} size="large" />
         </View>
       ) : null}
       <YoutubePlayer

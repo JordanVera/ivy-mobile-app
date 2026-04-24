@@ -15,13 +15,14 @@ import { IvyText } from '@/components/ivy/ivy-text';
 import { ScreenHeader } from '@/components/ivy/screen-header';
 import { VideoThumbnailCard } from '@/components/ivy/video-thumbnail-card';
 import { IconSymbol } from '@/components/ui/icon-symbol';
+import { IvyColors } from '@/constants/ivy-colors';
 import { trpc } from '@/lib/trpc';
 import {
   getFeaturedPoster,
   getStackPosterForVideoId,
 } from '@/lib/video-hero-image';
 
-const ACCENT = '#b45309';
+const ACCENT = IvyColors.accent;
 
 export default function WatchScreen() {
   const router = useRouter();
@@ -149,7 +150,7 @@ export default function WatchScreen() {
               )}
 
               <View className="absolute bottom-0 left-0 right-0 z-10 px-5 pb-7">
-                <IvyText className="text-[10px] font-semibold uppercase tracking-[3px] text-amber-300">
+                <IvyText className="text-[10px] font-semibold uppercase tracking-[3px] text-ivy-accent">
                   Featured
                 </IvyText>
                 <IvyHeading
@@ -195,7 +196,7 @@ export default function WatchScreen() {
           <IvyText className="text-[10px] font-semibold uppercase tracking-[3px] text-zinc-500 dark:text-zinc-400">
             More to watch
           </IvyText>
-          <View className="mt-3 h-px w-12 bg-amber-700 dark:bg-amber-500" />
+          <View className="mt-3 h-px w-12 bg-ivy-accent" />
         </View>
 
         {isLoading && moreVideos.length === 0 ? (

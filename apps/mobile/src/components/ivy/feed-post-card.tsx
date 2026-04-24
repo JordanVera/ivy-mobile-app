@@ -7,6 +7,7 @@ import {
 } from 'react-native';
 
 import { IconSymbol } from '@/components/ui/icon-symbol';
+import { IvyColors } from '@/constants/ivy-colors';
 import { trpc } from '@/lib/trpc';
 
 import { IvyText } from './ivy-text';
@@ -66,16 +67,16 @@ export function FeedPostCard({
     trimmedComment.length > 0 &&
     !addComment.isPending;
 
-  const heartColor = likedByMe ? '#b45309' : '#a1a1aa';
+  const heartColor = likedByMe ? IvyColors.accent : '#a1a1aa';
 
   return (
     <View className="rounded-2xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
       <View className="mb-3 flex-row items-center gap-3">
-        <View className="h-11 w-11 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-900/40">
+        <View className="h-11 w-11 items-center justify-center rounded-full bg-ivy-accent/15 dark:bg-ivy-accent/25">
           <IconSymbol
             name="person.crop.circle.fill"
             size={32}
-            color="#b45309"
+            color={IvyColors.accent}
           />
         </View>
         <View className="flex-1">
@@ -109,7 +110,7 @@ export function FeedPostCard({
           <IconSymbol
             name="bubble.left.and.bubble.right.fill"
             size={22}
-            color={commentsOpen ? '#b45309' : '#a1a1aa'}
+            color={commentsOpen ? IvyColors.accent : '#a1a1aa'}
           />
           <IvyText className="text-sm text-zinc-500 dark:text-zinc-400">
             {commentCount > 0 ? String(commentCount) : 'Comment'}
@@ -166,7 +167,7 @@ export function FeedPostCard({
                   {commentDraft.length}/2000
                 </IvyText>
                 <Pressable
-                  className="rounded-lg bg-amber-600 px-3 py-2 active:opacity-90 disabled:opacity-40"
+                  className="rounded-lg bg-ivy-accent px-3 py-2 active:opacity-90 disabled:opacity-40"
                   disabled={!canSendComment}
                   onPress={() =>
                     addComment.mutate({ postId, body: trimmedComment })

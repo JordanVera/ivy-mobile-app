@@ -3,6 +3,7 @@ import { useCallback, useState } from 'react';
 import { ActivityIndicator, Alert, Platform, Pressable, View } from 'react-native';
 
 import { IconSymbol } from '@/components/ui/icon-symbol';
+import { IvyColors } from '@/constants/ivy-colors';
 
 import { IvyText } from './ivy-text';
 
@@ -17,7 +18,7 @@ type AddToCalendarButtonProps = {
   label?: string;
 };
 
-const ACCENT = '#b45309';
+const ACCENT = IvyColors.accent;
 
 async function getWritableCalendarId(): Promise<string | null> {
   const calendars = await Calendar.getCalendarsAsync(
@@ -124,7 +125,7 @@ export function AddToCalendarButton({
       className={`flex-row items-center justify-center gap-2 rounded-xl border px-4 py-3 active:opacity-90 ${
         added
           ? 'border-emerald-300 bg-emerald-50 dark:border-emerald-900 dark:bg-emerald-950/40'
-          : 'border-amber-200 bg-amber-50 dark:border-amber-900/50 dark:bg-amber-950/30'
+          : 'border-ivy-accent/40 bg-ivy-accent/10 dark:border-ivy-accent/40 dark:bg-ivy-accent/15'
       }`}
     >
       {busy ? (
@@ -140,7 +141,7 @@ export function AddToCalendarButton({
         className={`text-sm font-semibold ${
           added
             ? 'text-emerald-700 dark:text-emerald-300'
-            : 'text-amber-800 dark:text-amber-300'
+            : 'text-ivy-accent'
         }`}
       >
         {rendered}

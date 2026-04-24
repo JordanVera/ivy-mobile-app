@@ -11,6 +11,7 @@ import { IvyCard } from '@/components/ivy/ivy-card';
 import { IvyText } from '@/components/ivy/ivy-text';
 import { ScreenHeader } from '@/components/ivy/screen-header';
 import { IconSymbol } from '@/components/ui/icon-symbol';
+import { IvyColors } from '@/constants/ivy-colors';
 import {
   getThemePreference,
   setThemePreference,
@@ -147,7 +148,7 @@ export default function ProfileScreen() {
     user?.primaryEmailAddress?.verification?.status === 'verified';
   const clerkCreated = clerkCreatedAtIso(user);
 
-  const accent = '#b45309';
+  const accent = IvyColors.accent;
   const muted = '#a1a1aa';
 
   return (
@@ -234,7 +235,7 @@ export default function ProfileScreen() {
                     key={item.label}
                     className={`flex-1 items-center ${i > 0 ? 'border-l border-zinc-100 dark:border-zinc-800' : ''}`}
                   >
-                    <IvyText className="text-2xl font-semibold tabular-nums text-amber-800 dark:text-amber-400">
+                    <IvyText className="text-2xl font-semibold tabular-nums text-ivy-accent">
                       {item.value}
                     </IvyText>
                     <IvyText className="mt-0.5 text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
@@ -294,7 +295,7 @@ export default function ProfileScreen() {
             className="mb-6 flex-row items-center justify-between rounded-2xl border border-zinc-200 bg-white px-4 py-3.5 active:opacity-90 dark:border-zinc-800 dark:bg-zinc-900"
           >
             <View className="flex-row items-center gap-3">
-              <View className="h-10 w-10 items-center justify-center rounded-xl bg-amber-100 dark:bg-amber-950/50">
+              <View className="h-10 w-10 items-center justify-center rounded-xl bg-ivy-accent/15 dark:bg-ivy-accent/20">
                 <IconSymbol name="arrow.clockwise" size={22} color={accent} />
               </View>
               <View>
@@ -326,7 +327,7 @@ export default function ProfileScreen() {
                   onPress={() => onPickTheme(key)}
                   className={`rounded-xl border px-4 py-2.5 ${
                     selected
-                      ? 'border-amber-600 bg-amber-600 dark:border-amber-500 dark:bg-amber-600'
+                      ? 'border-ivy-accent bg-ivy-accent'
                       : 'border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900'
                   }`}
                 >

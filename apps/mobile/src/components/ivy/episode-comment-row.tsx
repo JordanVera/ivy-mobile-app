@@ -2,6 +2,7 @@ import { Image } from 'expo-image';
 import { View } from 'react-native';
 
 import { IconSymbol } from '@/components/ui/icon-symbol';
+import { IvyColors } from '@/constants/ivy-colors';
 
 import { IvyText } from './ivy-text';
 
@@ -28,7 +29,7 @@ export function EpisodeCommentRow({
       className={`flex-row gap-3 py-3 ${isPending ? 'opacity-60' : ''}`}
       accessibilityLabel={`Comment by ${name}`}
     >
-      <View className="h-9 w-9 shrink-0 overflow-hidden rounded-full bg-amber-100 dark:bg-amber-900/40">
+      <View className="h-9 w-9 shrink-0 overflow-hidden rounded-full bg-ivy-accent/15 dark:bg-ivy-accent/25">
         {authorImageUrl ? (
           <Image
             source={{ uri: authorImageUrl }}
@@ -41,7 +42,7 @@ export function EpisodeCommentRow({
             <IconSymbol
               name="person.crop.circle.fill"
               size={28}
-              color="#b45309"
+              color={IvyColors.accent}
             />
           </View>
         )}

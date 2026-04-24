@@ -28,7 +28,7 @@ export function CategoryChips({
               onPress={() => onSelect(c)}
               className={`rounded-full border px-4 py-2 ${
                 active
-                  ? 'border-amber-600 bg-amber-600 dark:border-amber-500 dark:bg-amber-600'
+                  ? 'border-ivy-accent bg-ivy-accent'
                   : 'border-zinc-300 bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-800'
               }`}
             >

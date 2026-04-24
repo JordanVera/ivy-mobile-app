@@ -16,9 +16,10 @@ import { IvyHeading } from '@/components/ivy/ivy-heading';
 import { IvyText } from '@/components/ivy/ivy-text';
 import { LiveCountdown } from '@/components/ivy/live-countdown';
 import { IconSymbol } from '@/components/ui/icon-symbol';
+import { IvyColors } from '@/constants/ivy-colors';
 import { trpc } from '@/lib/trpc';
 
-const ACCENT = '#b45309';
+const ACCENT = IvyColors.accent;
 
 function formatLongDate(iso: string): string {
   try {
@@ -97,7 +98,7 @@ export default function LiveEventScreen() {
               </IvyCard>
             ) : !event ? (
               <IvyCard className="mt-6">
-                <IvyText className="text-xs font-semibold uppercase tracking-wider text-amber-700 dark:text-amber-400">
+                <IvyText className="text-xs font-semibold uppercase tracking-wider text-ivy-accent">
                   Nothing scheduled
                 </IvyText>
                 <IvyHeading className="mt-1 text-xl text-zinc-900 dark:text-white">
@@ -118,7 +119,7 @@ export default function LiveEventScreen() {
                       </IvyText>
                     </View>
                   ) : (
-                    <IvyText className="text-xs font-semibold uppercase tracking-widest text-amber-700 dark:text-amber-400">
+                    <IvyText className="text-xs font-semibold uppercase tracking-widest text-ivy-accent">
                       Next Live Session
                     </IvyText>
                   )}

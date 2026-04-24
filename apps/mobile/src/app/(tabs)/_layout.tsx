@@ -3,11 +3,12 @@ import React from 'react';
 
 import { HapticTab } from '@/components/haptic-tab';
 import { IconSymbol } from '@/components/ui/icon-symbol';
+import { IvyColors } from '@/constants/ivy-colors';
 import { useIvyColorScheme } from '@/hooks/use-ivy-color-scheme';
 
 export default function TabLayout() {
   const scheme = useIvyColorScheme();
-  const active = '#00FA9A';
+  const active = IvyColors.accent;
   const inactive = scheme === 'dark' ? '#71717a' : '#a1a1aa';
   const tabBg = scheme === 'dark' ? '#09090b' : '#ffffff';
   const border = scheme === 'dark' ? '#27272a' : '#e4e4e7';

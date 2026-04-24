@@ -62,7 +62,7 @@ export function EpisodeCommentComposer({
           accessibilityLabel="Post comment"
           disabled={!canSend}
           onPress={handleSend}
-          className="min-w-[72px] flex-row items-center justify-center gap-2 rounded-xl bg-amber-600 px-4 py-2.5 active:opacity-90 disabled:opacity-40"
+          className="min-w-[72px] flex-row items-center justify-center gap-2 rounded-xl bg-ivy-accent px-4 py-2.5 active:opacity-90 disabled:opacity-40"
         >
           {submitting ? (
             <ActivityIndicator color="#ffffff" size="small" />

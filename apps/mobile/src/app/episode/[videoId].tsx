@@ -1,7 +1,6 @@
 import { useAuth } from '@clerk/expo';
 import { useIsFocused } from '@react-navigation/native';
-import { useLocalSearchParams, useRouter, type Href } from 'expo-router';
-import { Stack } from 'expo-router';
+import { Stack, useLocalSearchParams, useRouter, type Href } from 'expo-router';
 import { useCallback, useMemo, useRef } from 'react';
 import {
   ActivityIndicator,
@@ -20,9 +19,10 @@ import { FeaturedYoutubePlayer } from '@/components/ivy/featured-youtube-player'
 import { IvyHeading } from '@/components/ivy/ivy-heading';
 import { IvyText } from '@/components/ivy/ivy-text';
 import { IconSymbol } from '@/components/ui/icon-symbol';
+import { IvyColors } from '@/constants/ivy-colors';
 import { trpc } from '@/lib/trpc';
 
-const ACCENT = '#b45309';
+const ACCENT = IvyColors.accent;
 /** How often to refetch the thread while the screen is focused (near-realtime). */
 const POLL_INTERVAL_MS = 4000;
 
@@ -87,9 +87,7 @@ export default function EpisodeScreen() {
   const handleSubmit = useCallback(
     async (body: string) => {
       if (!videoId) return;
-      await createComment
-        .mutateAsync({ videoId, body })
-        .catch(() => undefined);
+      await createComment.mutateAsync({ videoId, body }).catch(() => undefined);
       // After the post settles, scroll to the bottom so the user sees it land.
       requestAnimationFrame(() => {
         scrollRef.current?.scrollToEnd({ animated: true });
@@ -169,10 +167,10 @@ export default function EpisodeScreen() {
 
               <View className="px-5 pt-6">
                 <View className="items-center">
-                  <IvyText className="text-[10px] font-semibold uppercase tracking-[3px] text-amber-700 dark:text-amber-500">
+                  <IvyText className="text-[10px] font-semibold uppercase tracking-[3px] text-ivy-accent">
                     Episode
                   </IvyText>
-                  <View className="mt-2 h-px w-10 bg-amber-700 dark:bg-amber-500" />
+                  <View className="mt-2 h-px w-10 bg-ivy-accent" />
                 </View>
 
                 {titleParam ? (

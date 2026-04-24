@@ -14,6 +14,7 @@ import { IvyText } from '@/components/ivy/ivy-text';
 import { ResourceRow } from '@/components/ivy/resource-row';
 import { ScreenHeader } from '@/components/ivy/screen-header';
 import { IconSymbol } from '@/components/ui/icon-symbol';
+import { IvyColors } from '@/constants/ivy-colors';
 import { vaultResources } from '@/data/mock/content';
 import { trpc } from '@/lib/trpc';
 
@@ -38,12 +39,12 @@ export default function VaultScreen() {
         title="Vault"
         left={
           <Pressable className="p-2" hitSlop={8}>
-            <IconSymbol name="icloud.and.arrow.up" size={22} color="#b45309" />
+            <IconSymbol name="icloud.and.arrow.up" size={22} color={IvyColors.accent} />
           </Pressable>
         }
         right={
           <Pressable className="p-2" hitSlop={8}>
-            <IconSymbol name="magnifyingglass" size={22} color="#b45309" />
+            <IconSymbol name="magnifyingglass" size={22} color={IvyColors.accent} />
           </Pressable>
         }
       />
@@ -87,7 +88,7 @@ export default function VaultScreen() {
                   {draft.length}/5000
                 </IvyText>
                 <Pressable
-                  className="rounded-xl bg-amber-600 px-4 py-2.5 active:opacity-90 disabled:opacity-40"
+                  className="rounded-xl bg-ivy-accent px-4 py-2.5 active:opacity-90 disabled:opacity-40"
                   disabled={!canPost}
                   onPress={() => createPost.mutate({ body: trimmed })}
                 >
