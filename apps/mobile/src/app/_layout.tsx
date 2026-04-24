@@ -1,10 +1,5 @@
 import { ClerkProvider, useAuth } from '@clerk/expo';
 import { tokenCache } from '@clerk/expo/token-cache';
-import { ThemeProvider } from '@react-navigation/native';
-import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
-import { StatusBar } from 'expo-status-bar';
 import {
   Inter_400Regular,
   Inter_500Medium,
@@ -14,17 +9,25 @@ import {
   PlayfairDisplay_600SemiBold,
   PlayfairDisplay_700Bold,
 } from '@expo-google-fonts/playfair-display';
+import { ThemeProvider } from '@react-navigation/native';
+import { useFonts } from 'expo-font';
+import { Stack } from 'expo-router';
+import * as SplashScreen from 'expo-splash-screen';
+import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
 import 'react-native-reanimated';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import '../global.css';
 
 import { ClerkUserSync } from '@/components/clerk-user-sync';
-import { IvyDarkNavigationTheme, IvyLightNavigationTheme } from '@/constants/navigation-theme';
+import {
+  IvyDarkNavigationTheme,
+  IvyLightNavigationTheme,
+} from '@/constants/navigation-theme';
 import { useIvyColorScheme } from '@/hooks/use-ivy-color-scheme';
-import { TrpcProvider } from '@/lib/trpc';
 import { loadStoredThemePreference } from '@/lib/theme-preference';
+import { TrpcProvider } from '@/lib/trpc';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -84,6 +87,7 @@ function RootLayoutNav() {
           name="episode/[videoId]"
           options={{ headerShown: false }}
         />
+        <Stack.Screen name="hub/[slug]" options={{ headerShown: false }} />
         <Stack.Screen
           name="modal"
           options={{ presentation: 'modal', title: 'Modal', headerShown: true }}
@@ -96,7 +100,10 @@ function RootLayoutNav() {
 
 export default function RootLayout() {
   return (
-    <ClerkProvider publishableKey={getClerkPublishableKey()} tokenCache={tokenCache}>
+    <ClerkProvider
+      publishableKey={getClerkPublishableKey()}
+      tokenCache={tokenCache}
+    >
       <TrpcProvider>
         <ClerkUserSync />
         <SafeAreaProvider>

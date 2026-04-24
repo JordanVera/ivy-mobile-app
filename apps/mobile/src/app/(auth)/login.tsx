@@ -24,6 +24,7 @@ import {
 } from '@/components/auth/google-sign-in-button';
 import { GoldGradientButton } from '@/components/ivy/gold-gradient-button';
 import { IvyText } from '@/components/ivy/ivy-text';
+import { IvyColors } from '@/constants/ivy-colors';
 
 /** Placeholder hero art — swap anytime */
 const HERO_IMAGE = require('@/assets/images/nebula.jpg');
@@ -279,7 +280,7 @@ export default function LoginScreen() {
                       <MaterialCommunityIcons
                         name="check"
                         size={14}
-                        color="#ffffff"
+                        color={IvyColors.onAccent}
                       />
                     ) : null}
                   </View>
@@ -304,7 +305,7 @@ export default function LoginScreen() {
                   signInDisabled ? 'opacity-50' : ''
                 }`}
               >
-                <IvyText className="text-base font-semibold text-white">
+                <IvyText className="text-base font-semibold text-zinc-900">
                   Sign in
                 </IvyText>
               </Pressable>

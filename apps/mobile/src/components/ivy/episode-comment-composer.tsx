@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { ActivityIndicator, Pressable, TextInput, View } from 'react-native';
 
+import { IvyColors } from '@/constants/ivy-colors';
+
 import { IvyText } from './ivy-text';
 
 const MAX_LENGTH = 2000;
@@ -65,9 +67,12 @@ export function EpisodeCommentComposer({
           className="min-w-[72px] flex-row items-center justify-center gap-2 rounded-xl bg-ivy-accent px-4 py-2.5 active:opacity-90 disabled:opacity-40"
         >
           {submitting ? (
-            <ActivityIndicator color="#ffffff" size="small" />
+            <ActivityIndicator
+              color={IvyColors.onAccent}
+              size="small"
+            />
           ) : (
-            <IvyText className="text-sm font-semibold text-white">Post</IvyText>
+            <IvyText className="text-sm font-semibold text-zinc-900">Post</IvyText>
           )}
         </Pressable>
       </View>

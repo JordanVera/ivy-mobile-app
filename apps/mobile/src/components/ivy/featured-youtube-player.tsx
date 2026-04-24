@@ -35,7 +35,9 @@ export function FeaturedYoutubePlayer({ videoId }: FeaturedYoutubePlayerProps) {
           onPress={openYoutube}
           className="rounded-xl bg-ivy-accent px-4 py-3 active:opacity-90"
         >
-          <IvyText className="font-semibold text-white">Open in YouTube (web)</IvyText>
+          <IvyText className="font-semibold text-zinc-900">
+            Open in YouTube (web)
+          </IvyText>
         </Pressable>
       </View>
     );

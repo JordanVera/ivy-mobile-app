@@ -332,7 +332,7 @@ export default function ProfileScreen() {
                   }`}
                 >
                   <IvyText
-                    className={`text-sm font-medium ${selected ? 'text-white' : 'text-zinc-800 dark:text-zinc-200'}`}
+                    className={`text-sm font-medium ${selected ? 'text-zinc-900' : 'text-zinc-800 dark:text-zinc-200'}`}
                   >
                     {label}
                   </IvyText>

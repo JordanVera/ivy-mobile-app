@@ -27,6 +27,8 @@ model User {
   postLikes       FeedPostLike[]
   postComments    FeedPostComment[]
   episodeComments EpisodeComment[]
+  hubMemberships  HubMembership[]
+  hubMessages     HubMessage[]
 }
 
 model FeedPost {
@@ -82,6 +84,54 @@ model EpisodeComment {
   author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
 
   @@index([youtubeVideoId, createdAt])
+  @@index([authorId])
+}
+
+/// SOAR Hubs — small groups housed under "The Nest". Canonical hubs (Entrepreneurs,
+/// College Life, Golden Age, Ahh Man) are seeded via `prisma/seed.ts` and identified by
+/// a stable `slug`. Each hub has memberships and a public chat between members.
+model Hub {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  name        String
+  tagline     String?
+  description String?  @db.Text
+  icon        String?
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  memberships HubMembership[]
+  messages    HubMessage[]
+
+  @@index([sortOrder])
+}
+
+model HubMembership {
+  id                    String   @id @default(cuid())
+  hubId                 String
+  userId                String
+  notificationsEnabled  Boolean  @default(false)
+  joinedAt              DateTime @default(now())
+
+  hub  Hub  @relation(fields: [hubId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([hubId, userId])
+  @@index([userId])
+}
+
+model HubMessage {
+  id        String   @id @default(cuid())
+  hubId     String
+  authorId  String
+  body      String   @db.Text
+  createdAt DateTime @default(now())
+
+  hub    Hub  @relation(fields: [hubId], references: [id], onDelete: Cascade)
+  author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([hubId, createdAt])
   @@index([authorId])
 }
 

@@ -36,6 +36,16 @@ const MAPPING = {
   'play.rectangle.fill': 'play-circle-filled',
   'play.fill': 'play-arrow',
   'chevron.left': 'chevron-left',
+  'briefcase.fill': 'work',
+  'graduationcap.fill': 'school',
+  'sun.max.fill': 'wb-sunny',
+  'figure.stand': 'accessibility',
+  'bell.fill': 'notifications',
+  'bell.slash.fill': 'notifications-off',
+  'person.fill.checkmark': 'how-to-reg',
+  'paperplane.circle.fill': 'send',
+  'plus.circle.fill': 'add-circle',
+  'arrow.right': 'arrow-forward',
 } as const satisfies IconMapping;
 
 export type IconSymbolName = keyof typeof MAPPING;

@@ -1,0 +1,174 @@
+import { useAuth } from '@clerk/expo';
+import { useRouter, type Href } from 'expo-router';
+import { useCallback } from 'react';
+import { ActivityIndicator, Pressable, ScrollView, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
+import { HubCard } from '@/components/ivy/hub-card';
+import { IvyHeading } from '@/components/ivy/ivy-heading';
+import { IvyText } from '@/components/ivy/ivy-text';
+import { ScreenHeader } from '@/components/ivy/screen-header';
+import { IconSymbol, type IconSymbolName } from '@/components/ui/icon-symbol';
+import { IvyColors } from '@/constants/ivy-colors';
+import { trpc } from '@/lib/trpc';
+
+const ACCENT = IvyColors.accent;
+
+/** Default icon if a hub row is missing one or has an icon we don't yet map. */
+const FALLBACK_ICON: IconSymbolName = 'person.3.fill';
+
+const KNOWN_ICONS: ReadonlySet<IconSymbolName> = new Set([
+  'briefcase.fill',
+  'graduationcap.fill',
+  'sun.max.fill',
+  'figure.stand',
+  'person.3.fill',
+  'bubble.left.and.bubble.right.fill',
+  'map.fill',
+  'mountain.2.fill',
+]);
+
+function resolveIcon(icon: string | null | undefined): IconSymbolName {
+  if (icon && KNOWN_ICONS.has(icon as IconSymbolName)) {
+    return icon as IconSymbolName;
+  }
+  return FALLBACK_ICON;
+}
+
+export default function TheNestScreen() {
+  const router = useRouter();
+  const { isSignedIn } = useAuth();
+  const utils = trpc.useUtils();
+
+  const hubsQuery = trpc.hubs.list.useQuery();
+
+  const join = trpc.hubs.join.useMutation({
+    onSuccess: () => void utils.hubs.list.invalidate(),
+  });
+  const leave = trpc.hubs.leave.useMutation({
+    onSuccess: () => void utils.hubs.list.invalidate(),
+  });
+
+  const openHub = useCallback(
+    (slug: string) => {
+      router.push(`/hub/${slug}` as Href);
+    },
+    [router],
+  );
+
+  const toggleJoin = useCallback(
+    (slug: string, joined: boolean) => {
+      if (!isSignedIn) {
+        router.push('/login' as Href);
+        return;
+      }
+      if (joined) {
+        leave.mutate({ slug });
+      } else {
+        join.mutate({ slug });
+      }
+    },
+    [isSignedIn, join, leave, router],
+  );
+
+  const pendingSlug = join.variables?.slug ?? leave.variables?.slug ?? null;
+  const isMutating = join.isPending || leave.isPending;
+
+  return (
+    <SafeAreaView style={{ flex: 1 }} edges={['top', 'left', 'right']}>
+      <ScreenHeader
+        title="The Nest"
+        right={
+          <Pressable className="p-2" hitSlop={8}>
+            <IconSymbol name="magnifyingglass" size={22} color={ACCENT} />
+          </Pressable>
+        }
+      />
+
+      <View className="flex-1 bg-zinc-50 dark:bg-zinc-950" style={{ flex: 1 }}>
+        <ScrollView
+          style={{ flex: 1 }}
+          contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 32 }}
+          showsVerticalScrollIndicator={false}
+        >
+          <View className="mt-4 items-center">
+            <IvyText className="text-[10px] font-semibold uppercase tracking-[3px] text-ivy-accent">
+              SOAR Hubs · Small Groups
+            </IvyText>
+            <View className="mt-2 h-px w-12 bg-ivy-accent" />
+            <IvyHeading
+              level="brand"
+              className="mt-3 text-center text-[30px] leading-[1.15] text-zinc-900 dark:text-white"
+            >
+              The Nest
+            </IvyHeading>
+            <IvyText className="mt-2 text-center text-[14px] italic leading-5 text-zinc-600 dark:text-zinc-400">
+              Find your people. Find your place.
+            </IvyText>
+            <IvyText className="mt-3 max-w-[320px] text-center text-[13px] leading-5 text-zinc-600 dark:text-zinc-400">
+              Members know these as Hubs or small groups. The Nest houses all
+              four: Entrepreneurs, College Life, Golden Age, and Ahh Man.
+            </IvyText>
+          </View>
+
+          <View className="mt-8 mb-3 flex-row items-end justify-between">
+            <IvyText className="text-sm font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+              Hubs
+            </IvyText>
+            {hubsQuery.isFetching && !hubsQuery.isLoading ? (
+              <ActivityIndicator size="small" color={ACCENT} />
+            ) : null}
+          </View>
+
+          {hubsQuery.isLoading ? (
+            <View className="items-center py-10">
+              <ActivityIndicator color={ACCENT} />
+            </View>
+          ) : hubsQuery.isError ? (
+            <View className="rounded-2xl border border-red-200 bg-red-50 p-4 dark:border-red-900 dark:bg-red-950/40">
+              <IvyText className="text-sm text-red-800 dark:text-red-200">
+                {hubsQuery.error.message}
+              </IvyText>
+              <Pressable
+                onPress={() => void hubsQuery.refetch()}
+                className="mt-3 self-start rounded-full border border-red-300 px-4 py-2 dark:border-red-800"
+              >
+                <IvyText className="text-[11px] font-semibold uppercase tracking-[2px] text-red-800 dark:text-red-200">
+                  Retry
+                </IvyText>
+              </Pressable>
+            </View>
+          ) : hubsQuery.data?.length ? (
+            hubsQuery.data.map((hub) => (
+              <HubCard
+                key={hub.id}
+                name={hub.name}
+                tagline={hub.tagline}
+                icon={resolveIcon(hub.icon)}
+                memberCount={hub.memberCount}
+                joined={hub.joined}
+                joinPending={isMutating && pendingSlug === hub.slug}
+                onOpen={() => openHub(hub.slug)}
+                onToggleJoin={() => toggleJoin(hub.slug, hub.joined)}
+              />
+            ))
+          ) : (
+            <View className="items-center rounded-2xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
+              <IvyText className="text-center text-sm text-zinc-600 dark:text-zinc-400">
+                No hubs yet. Check back soon.
+              </IvyText>
+            </View>
+          )}
+
+          {!isSignedIn ? (
+            <View className="mt-6 rounded-2xl border border-zinc-200 bg-zinc-100/80 px-4 py-3 dark:border-zinc-800 dark:bg-zinc-900/60">
+              <IvyText className="text-sm text-zinc-600 dark:text-zinc-400">
+                Sign in to join a hub and chat with the community.
+              </IvyText>
+            </View>
+          ) : null}
+        </ScrollView>
+      </View>
+    </SafeAreaView>
+  );
+}

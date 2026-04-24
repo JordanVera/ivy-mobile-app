@@ -186,7 +186,7 @@ export default function SignUpScreen() {
                     verifyDisabled ? 'opacity-50' : ''
                   }`}
                 >
-                  <IvyText className="text-base font-semibold text-white">
+                  <IvyText className="text-base font-semibold text-zinc-900">
                     Verify
                   </IvyText>
                 </Pressable>
@@ -375,7 +375,7 @@ export default function SignUpScreen() {
                   signUpDisabled ? 'opacity-50' : ''
                 }`}
               >
-                <IvyText className="text-base font-semibold text-white">
+                <IvyText className="text-base font-semibold text-zinc-900">
                   Sign up
                 </IvyText>
               </Pressable>

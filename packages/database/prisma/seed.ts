@@ -41,7 +41,58 @@ function resolveDuration(): number {
   return Number.isFinite(n) && n > 0 ? Math.floor(n) : 60;
 }
 
-async function main() {
+/**
+ * Canonical SOAR Hubs that power "The Nest" tab. Identified by stable `slug`
+ * so the seed is safe to re-run and front-end code can deep-link to a hub by
+ * slug rather than relying on a generated id.
+ */
+const SEED_HUBS: Array<{
+  slug: string;
+  name: string;
+  tagline: string;
+  description: string;
+  icon: string;
+  sortOrder: number;
+}> = [
+  {
+    slug: 'entrepreneurs',
+    name: 'Entrepreneurs',
+    tagline: 'Build your vision with peers in the arena.',
+    description:
+      'For founders, operators, and side-hustlers turning ideas into income and impact.',
+    icon: 'briefcase.fill',
+    sortOrder: 10,
+  },
+  {
+    slug: 'college-life',
+    name: 'College Life',
+    tagline: 'Grow through your campus chapter together.',
+    description:
+      'Students navigating school, identity, and calling — leaning into community along the way.',
+    icon: 'graduationcap.fill',
+    sortOrder: 20,
+  },
+  {
+    slug: 'golden-age',
+    name: 'Golden Age',
+    tagline: 'Wisdom shared. Legacy lived.',
+    description:
+      'Seasoned members pouring decades of life into the next generation while still being poured into.',
+    icon: 'sun.max.fill',
+    sortOrder: 30,
+  },
+  {
+    slug: 'ahh-man',
+    name: 'Ahh Man',
+    tagline: 'Brothers sharpening brothers.',
+    description:
+      'A space for the men of SOAR — real talk, accountability, faith, and forward motion.',
+    icon: 'figure.stand',
+    sortOrder: 40,
+  },
+];
+
+async function seedLiveEvent() {
   const startsAt = resolveStartsAt();
   const durationMinutes = resolveDuration();
   const youtubeVideoId =
@@ -71,6 +122,28 @@ async function main() {
   console.log(
     `[seed] Upserted LiveEvent id=${SEED_EVENT_ID} startsAt=${startsAt.toISOString()} videoId=${youtubeVideoId}`,
   );
+}
+
+async function seedHubs() {
+  for (const hub of SEED_HUBS) {
+    await prisma.hub.upsert({
+      where: { slug: hub.slug },
+      update: {
+        name: hub.name,
+        tagline: hub.tagline,
+        description: hub.description,
+        icon: hub.icon,
+        sortOrder: hub.sortOrder,
+      },
+      create: hub,
+    });
+    console.log(`[seed] Upserted Hub slug=${hub.slug}`);
+  }
+}
+
+async function main() {
+  await seedLiveEvent();
+  await seedHubs();
 }
 
 main()

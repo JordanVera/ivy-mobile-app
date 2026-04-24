@@ -173,7 +173,7 @@ export function FeedPostCard({
                     addComment.mutate({ postId, body: trimmedComment })
                   }
                 >
-                  <IvyText className="text-sm font-semibold text-white">
+                  <IvyText className="text-sm font-semibold text-zinc-900">
                     Reply
                   </IvyText>
                 </Pressable>

@@ -92,7 +92,7 @@ export default function VaultScreen() {
                   disabled={!canPost}
                   onPress={() => createPost.mutate({ body: trimmed })}
                 >
-                  <IvyText className="text-center text-sm font-semibold text-white">
+                  <IvyText className="text-center text-sm font-semibold text-zinc-900">
                     Post
                   </IvyText>
                 </Pressable>

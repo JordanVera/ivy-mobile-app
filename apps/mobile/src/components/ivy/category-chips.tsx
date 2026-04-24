@@ -34,7 +34,9 @@ export function CategoryChips({
             >
               <IvyText
                 className={`text-sm font-medium ${
-                  active ? 'text-white' : 'text-zinc-800 dark:text-zinc-200'
+                  active
+                    ? 'text-zinc-900'
+                    : 'text-zinc-800 dark:text-zinc-200'
                 }`}
               >
                 {c}
