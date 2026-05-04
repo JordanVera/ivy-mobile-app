@@ -1,4 +1,4 @@
-import { Image, type ImageSource } from 'expo-image';
+import { type ImageSource } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter, type Href } from 'expo-router';
 import { useEffect } from 'react';
@@ -13,6 +13,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
+import { GrayscaleCoverImage } from '@/components/ivy/grayscale-cover-image';
 import { IvyHeading } from '@/components/ivy/ivy-heading';
 import { IvyText } from '@/components/ivy/ivy-text';
 import { IconSymbol } from '@/components/ui/icon-symbol';
@@ -23,18 +24,6 @@ import { trpc } from '@/lib/trpc';
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 const DEFAULT_HERO_IMAGE: number = require('@/assets/images/ivy-oprah-1.jpeg');
-
-/**
- * Diagonal 4-stop color wash laid over the hero photo. Colors come straight
- * from the Tailwind palette (orange-400 → pink-500 → purple-500 → cyan-400)
- * and sit at partial alpha so the image still reads through as a photo.
- */
-const MAGIC_HOUR_GRADIENT = [
-  'rgba(251, 146, 60, 0.55)',
-  'rgba(236, 72, 153, 0.50)',
-  'rgba(168, 85, 247, 0.50)',
-  'rgba(34, 211, 238, 0.45)',
-] as const;
 
 function formatEventDate(iso: string): string {
   try {
@@ -135,38 +124,12 @@ export function LiveEventHomeCard({
         className="w-full overflow-hidden bg-zinc-900"
         style={styles.heroFrame}
       >
-        <Image
+        <GrayscaleCoverImage
           source={heroImage}
-          style={StyleSheet.absoluteFillObject}
           contentFit="cover"
           accessible={false}
         />
 
-        {/*
-         * "Magic hour" color wash tinted with the Tailwind palette.
-         * Sits directly over the photo, underneath the dark scrims, so the
-         * image still reads through but picks up a rich editorial cast. The
-         * dark bottom scrim below keeps the title / countdown / CTA legible.
-         */}
-        <LinearGradient
-          colors={MAGIC_HOUR_GRADIENT}
-          locations={[0, 0.35, 0.7, 1]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={StyleSheet.absoluteFillObject}
-          pointerEvents="none"
-        />
-
-        <LinearGradient
-          colors={['rgba(0,0,0,0.55)', 'rgba(0,0,0,0)']}
-          start={{ x: 0.5, y: 0 }}
-          end={{ x: 0.5, y: 1 }}
-          style={[
-            StyleSheet.absoluteFillObject,
-            { bottom: undefined, height: '30%' },
-          ]}
-          pointerEvents="none"
-        />
         <LinearGradient
           colors={['rgba(0,0,0,0)', 'rgba(0,0,0,0.35)', 'rgba(0,0,0,0.9)']}
           locations={[0, 0.45, 1]}
@@ -175,22 +138,6 @@ export function LiveEventHomeCard({
           style={[StyleSheet.absoluteFillObject, { top: '35%' }]}
           pointerEvents="none"
         />
-
-        <Animated.View
-          pointerEvents="none"
-          style={[styles.shimmerWrap, shimmerStyle]}
-        >
-          <LinearGradient
-            colors={[
-              'rgba(0, 250, 154, 0)',
-              'rgba(0, 250, 154, 0.40)',
-              'rgba(0, 250, 154, 0)',
-            ]}
-            start={{ x: 0, y: 0.5 }}
-            end={{ x: 1, y: 0.5 }}
-            style={StyleSheet.absoluteFillObject}
-          />
-        </Animated.View>
 
         <View
           className="absolute inset-0 z-10 justify-between"

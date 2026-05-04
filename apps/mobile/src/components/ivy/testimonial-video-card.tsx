@@ -1,7 +1,9 @@
 import { useEvent } from 'expo';
 import { useVideoPlayer, VideoView } from 'expo-video';
 import { useEffect, useRef } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Platform, Pressable, StyleSheet, View } from 'react-native';
+
+import { grayscaleBackdropWebClassName } from '@/components/ivy/grayscale-cover-image';
 
 import { IvyHeading } from '@/components/ivy/ivy-heading';
 import { IvyText } from '@/components/ivy/ivy-text';
@@ -82,7 +84,10 @@ export function TestimonialVideoCard({
         </IvyHeading>
       </View>
 
-      <View className="mt-5 w-full bg-black" style={styles.videoFrame}>
+      <View
+        className={`mt-5 w-full bg-black${!isPlaying && Platform.OS === 'web' ? ` ${grayscaleBackdropWebClassName}` : ''}`}
+        style={styles.videoFrame}
+      >
         <VideoView
           player={player}
           style={StyleSheet.absoluteFillObject}

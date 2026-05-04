@@ -1,9 +1,10 @@
-import { Image } from 'expo-image';
+import type { ImageProps } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter, type Href } from 'expo-router';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { GrayscaleCoverImage } from '@/components/ivy/grayscale-cover-image';
 import { IvyCard } from '@/components/ivy/ivy-card';
 import { IvyHeading } from '@/components/ivy/ivy-heading';
 import { IvyText } from '@/components/ivy/ivy-text';
@@ -13,30 +14,6 @@ import { IconSymbol } from '@/components/ui/icon-symbol';
 const ivyDailyEdge = require('@/assets/images/ivy-1.jpeg');
 const ivyFocus = require('@/assets/images/ivy-7.jpeg');
 const ivyTestimonials = require('@/assets/images/ivy-5.jpg');
-
-/**
- * Diagonal, three-stop color washes laid over each card's image. Colors are
- * pulled from the Tailwind palette and kept at partial alpha so the photo
- * underneath still reads through.
- */
-// Daily Edge: warm "sunrise" — orange-400 → pink-500 → purple-500
-const SUNRISE_GRADIENT = [
-  'rgba(251, 146, 60, 0.60)',
-  'rgba(236, 72, 153, 0.50)',
-  'rgba(168, 85, 247, 0.55)',
-] as const;
-// 7-Day Focus: cool "twilight" — cyan-400 → violet-500 → pink-500
-const TWILIGHT_GRADIENT = [
-  'rgba(34, 211, 238, 0.55)',
-  'rgba(139, 92, 246, 0.50)',
-  'rgba(236, 72, 153, 0.55)',
-] as const;
-// Testimonials: editorial "spotlight" — amber-400 → rose-500 → indigo-500
-const SPOTLIGHT_GRADIENT = [
-  'rgba(251, 191, 36, 0.55)',
-  'rgba(244, 63, 94, 0.50)',
-  'rgba(99, 102, 241, 0.55)',
-] as const;
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -62,13 +39,13 @@ export default function HomeScreen() {
             title="Daily Edge"
             dek="Short insight to sharpen your day."
             image={ivyDailyEdge}
-            gradient={SUNRISE_GRADIENT}
+            imageContentPosition="top"
           />
           <FeatureCard
             title="7-Day Focus Challenge"
             dek="Commit to one priority for the next week."
             image={ivyFocus}
-            gradient={TWILIGHT_GRADIENT}
+            imageContentPosition="top"
           />
         </View>
       </ScrollView>
@@ -76,16 +53,23 @@ export default function HomeScreen() {
   );
 }
 
-type GradientStops = readonly [string, string, ...string[]];
-
 type FeatureCardProps = {
   title: string;
   dek: string;
   image: number;
-  gradient: GradientStops;
+  /** Same as expo-image `contentFit` (Skia path mirrors it on iOS/Android). */
+  imageContentFit?: ImageProps['contentFit'];
+  /** Same as expo-image `contentPosition` — tune crop/focal point per asset. */
+  imageContentPosition?: ImageProps['contentPosition'];
 };
 
-function FeatureCard({ title, dek, image, gradient }: FeatureCardProps) {
+function FeatureCard({
+  title,
+  dek,
+  image,
+  imageContentFit = 'cover',
+  imageContentPosition = 'center',
+}: FeatureCardProps) {
   return (
     <IvyCard className="overflow-hidden p-0" style={styles.listCard}>
       <View className="flex-1 flex-row items-stretch">
@@ -93,18 +77,10 @@ function FeatureCard({ title, dek, image, gradient }: FeatureCardProps) {
           className="bg-zinc-200 dark:bg-zinc-800"
           style={styles.listCardImageFrame}
         >
-          <Image
+          <GrayscaleCoverImage
             source={image}
-            style={StyleSheet.absoluteFillObject}
-            contentFit="cover"
-            contentPosition="top"
-          />
-          <LinearGradient
-            colors={gradient}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={StyleSheet.absoluteFillObject}
-            pointerEvents="none"
+            contentFit={imageContentFit}
+            contentPosition={imageContentPosition}
           />
         </View>
         <View className="min-w-0 flex-1 justify-center px-4 py-5">
@@ -138,25 +114,11 @@ function TestimonialsSection({ onPress }: { onPress: () => void }) {
           className="w-full overflow-hidden rounded-2xl bg-zinc-900"
           style={styles.testimonialsFrame}
         >
-          <Image
+          <GrayscaleCoverImage
             source={ivyTestimonials}
-            style={StyleSheet.absoluteFillObject}
             contentFit="cover"
             contentPosition="top"
             accessible={false}
-          />
-          {/*
-           * Diagonal "spotlight" color wash sits directly over the photo,
-           * mirroring the SUNRISE/TWILIGHT treatments on the FeatureCards
-           * above. The dark vertical scrim below it keeps the headline and
-           * CTA legible against the tinted image.
-           */}
-          <LinearGradient
-            colors={SPOTLIGHT_GRADIENT}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={StyleSheet.absoluteFillObject}
-            pointerEvents="none"
           />
           <LinearGradient
             colors={[
