@@ -14,9 +14,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { EpisodeCommentComposer } from '@/components/ivy/episode-comment-composer';
-import { HubEventCard } from '@/components/ivy/hub-event-card';
 import { HubMessageRow } from '@/components/ivy/hub-message-row';
-import { HubPlanEventModal } from '@/components/ivy/hub-plan-event-modal';
 import { IvyHeading } from '@/components/ivy/ivy-heading';
 import { IvyText } from '@/components/ivy/ivy-text';
 import { useToast } from '@/components/ivy/toast-provider';
@@ -112,9 +110,6 @@ export default function HubScreen() {
   const utils = trpc.useUtils();
   const toast = useToast();
   const scrollRef = useRef<ScrollView>(null);
-  const [planModalOpen, setPlanModalOpen] = useState(false);
-  const [rsvpBusyId, setRsvpBusyId] = useState<string | null>(null);
-
   const hubQuery = trpc.hubs.get.useQuery(
     { slug: slug ?? '' },
     { enabled: !!slug },
@@ -125,15 +120,6 @@ export default function HubScreen() {
     {
       enabled: !!slug,
       refetchInterval: isFocused ? POLL_INTERVAL_MS : false,
-      refetchOnWindowFocus: true,
-    },
-  );
-
-  const eventsQuery = trpc.hubs.events.useQuery(
-    { slug: slug ?? '' },
-    {
-      enabled: !!slug,
-      refetchInterval: isFocused ? 10_000 : false,
       refetchOnWindowFocus: true,
     },
   );
@@ -156,29 +142,6 @@ export default function HubScreen() {
       }
     },
   });
-
-  const setEventRsvp = trpc.hubs.setEventRsvp.useMutation({
-    onMutate: ({ eventId }) => setRsvpBusyId(eventId),
-    onSettled: () => setRsvpBusyId(null),
-    onSuccess: () => {
-      if (slug) void utils.hubs.events.invalidate({ slug });
-    },
-  });
-
-  const handleToggleRsvp = useCallback(
-    (eventId: string, currentlyGoing: boolean) => {
-      if (!isSignedIn) {
-        router.push('/login' as Href);
-        return;
-      }
-      if (!hubQuery.data?.joined) {
-        Alert.alert('Join the hub', 'Join this hub to RSVP to events.');
-        return;
-      }
-      setEventRsvp.mutate({ eventId, attending: !currentlyGoing });
-    },
-    [isSignedIn, hubQuery.data?.joined, router, setEventRsvp],
-  );
 
   const sendMessage = trpc.hubs.sendMessage.useMutation({
     onMutate: async ({ body }) => {
@@ -254,21 +217,6 @@ export default function HubScreen() {
     );
   }, []);
 
-  const handlePlanEvent = useCallback(() => {
-    if (!isSignedIn) {
-      router.push('/login' as Href);
-      return;
-    }
-    if (!hubQuery.data?.joined) {
-      Alert.alert(
-        'Join the hub first',
-        'Join this hub to plan an event for the group.',
-      );
-      return;
-    }
-    setPlanModalOpen(true);
-  }, [isSignedIn, hubQuery.data?.joined, router]);
-
   const composerDisabledReason = useMemo<string | null>(() => {
     if (!isSignedIn) return 'Sign in to chat in this hub.';
     return null;
@@ -302,9 +250,7 @@ export default function HubScreen() {
         : `${messageCount} messages`;
 
   const joined = hub?.joined ?? false;
-  const canRsvp = !!isSignedIn && joined;
   const joinPending = join.isPending || leave.isPending;
-  const hubEvents = eventsQuery.data?.events ?? [];
 
   return (
     <>
@@ -390,49 +336,7 @@ export default function HubScreen() {
                     label="Turn on notifications"
                     onPress={handleNotifications}
                   />
-                  <ActionPill
-                    icon="calendar.badge.plus"
-                    label="Plan an event"
-                    onPress={handlePlanEvent}
-                  />
                 </View>
-              </View>
-
-              <View className="mx-5 mt-8 border-t border-zinc-200 dark:border-zinc-800" />
-
-              <View className="mx-5 mt-6 flex-row items-center justify-between">
-                <IvyText className="text-[10px] font-semibold uppercase tracking-[3px] text-zinc-500 dark:text-zinc-400">
-                  Upcoming events
-                </IvyText>
-                {eventsQuery.isFetching && !eventsQuery.isLoading ? (
-                  <ActivityIndicator size="small" color={ACCENT} />
-                ) : null}
-              </View>
-
-              <View className="mx-5 mt-2">
-                {eventsQuery.isLoading ? (
-                  <View className="items-center py-8">
-                    <ActivityIndicator color={ACCENT} />
-                  </View>
-                ) : eventsQuery.isError ? (
-                  <IvyText className="text-sm text-red-600 dark:text-red-400">
-                    {eventsQuery.error.message}
-                  </IvyText>
-                ) : hubEvents.length === 0 ? (
-                  <IvyText className="py-4 text-center text-sm text-zinc-500 dark:text-zinc-400">
-                    No upcoming events. Plan one for the hub.
-                  </IvyText>
-                ) : (
-                  hubEvents.map((ev) => (
-                    <HubEventCard
-                      key={ev.id}
-                      event={ev}
-                      canRsvp={canRsvp}
-                      rsvpPending={rsvpBusyId === ev.id}
-                      onToggleRsvp={() => handleToggleRsvp(ev.id, ev.iAmGoing)}
-                    />
-                  ))
-                )}
               </View>
 
               <View className="mx-5 mt-8 border-t border-zinc-200 dark:border-zinc-800" />
@@ -521,13 +425,6 @@ export default function HubScreen() {
         </KeyboardAvoidingView>
       </SafeAreaView>
 
-      {slug ? (
-        <HubPlanEventModal
-          visible={planModalOpen}
-          hubSlug={slug}
-          onClose={() => setPlanModalOpen(false)}
-        />
-      ) : null}
     </>
   );
 }

@@ -12,7 +12,7 @@ import { IconSymbol } from '@/components/ui/icon-symbol';
 
 const ivyDailyEdge = require('@/assets/images/ivy-1.jpeg');
 const ivyFocus = require('@/assets/images/ivy-7.jpeg');
-const ivyTestimonials = require('@/assets/images/ivy-5.JPG');
+const ivyTestimonials = require('@/assets/images/ivy-5.jpg');
 
 /**
  * Diagonal, three-stop color washes laid over each card's image. Colors are
