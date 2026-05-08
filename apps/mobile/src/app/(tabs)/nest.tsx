@@ -1,5 +1,6 @@
 import { useAuth } from '@clerk/expo';
 import { useRouter, type Href } from 'expo-router';
+import * as WebBrowser from 'expo-web-browser';
 import { useCallback } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -13,6 +14,42 @@ import { IvyColors } from '@/constants/ivy-colors';
 import { trpc } from '@/lib/trpc';
 
 const ACCENT = IvyColors.accent;
+
+const WEB_PRICING_URL =
+  (process.env.EXPO_PUBLIC_WEB_URL ?? 'http://localhost:3000') + '/pricing';
+
+/** Clerk plan slugs that grant access to The Nest. */
+const NEST_PLANS = ['hub', 'mentee'] as const;
+
+function NestPaywall() {
+  return (
+    <SafeAreaView style={{ flex: 1 }} edges={['top', 'left', 'right']}>
+      <ScreenHeader title="The Nest" />
+      <View className="flex-1 items-center justify-center bg-zinc-50 px-8 dark:bg-zinc-950">
+        <View className="mb-6 h-20 w-20 items-center justify-center rounded-3xl bg-ivy-accent/15 dark:bg-ivy-accent/20">
+          <IconSymbol name="lock.fill" size={36} color={ACCENT} />
+        </View>
+
+        <IvyText className="mb-2 text-center text-xl font-bold text-zinc-900 dark:text-white">
+          Members only
+        </IvyText>
+        <IvyText className="mb-8 text-center text-sm leading-5 text-zinc-500 dark:text-zinc-400">
+          The Nest is available on the Hub and Mentee plans. Upgrade to connect
+          with your community.
+        </IvyText>
+
+        <Pressable
+          onPress={() => void WebBrowser.openAuthSessionAsync(WEB_PRICING_URL)}
+          className="w-full items-center rounded-2xl bg-ivy-accent px-6 py-3.5 active:opacity-80"
+        >
+          <IvyText className="text-base font-semibold text-zinc-900">
+            View plans
+          </IvyText>
+        </Pressable>
+      </View>
+    </SafeAreaView>
+  );
+}
 
 /** Default icon if a hub row is missing one or has an icon we don't yet map. */
 const FALLBACK_ICON: IconSymbolName = 'person.3.fill';
@@ -85,8 +122,15 @@ function resolveIcon(icon: string | null | undefined): IconSymbolName {
 
 export default function TheNestScreen() {
   const router = useRouter();
-  const { isSignedIn } = useAuth();
+  const { isLoaded, isSignedIn, has } = useAuth();
   const utils = trpc.useUtils();
+
+  const hasNestAccess =
+    isLoaded && isSignedIn && NEST_PLANS.some((plan) => has?.({ plan }));
+
+  if (isLoaded && (!isSignedIn || !hasNestAccess)) {
+    return <NestPaywall />;
+  }
   const toast = useToast();
 
   const hubsQuery = trpc.hubs.list.useQuery();

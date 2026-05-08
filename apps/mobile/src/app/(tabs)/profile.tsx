@@ -1,7 +1,6 @@
 import { useAuth, useClerk, useUser } from '@clerk/expo';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
-import * as WebBrowser from 'expo-web-browser';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -10,6 +9,10 @@ import { useUniwind } from 'uniwind';
 import { GoldGradientButton } from '@/components/ivy/gold-gradient-button';
 import { IvyCard } from '@/components/ivy/ivy-card';
 import { IvyText } from '@/components/ivy/ivy-text';
+import {
+  MembershipSection,
+  type BillingPlan,
+} from '@/components/ivy/membership-section';
 import { ScreenHeader } from '@/components/ivy/screen-header';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { IvyColors } from '@/constants/ivy-colors';
@@ -25,25 +28,6 @@ const THEME_OPTIONS: { key: ThemePreference; label: string }[] = [
   { key: 'dark', label: 'Dark' },
   { key: 'system', label: 'System' },
 ];
-
-const WEB_PRICING_URL =
-  (process.env.EXPO_PUBLIC_WEB_URL ?? 'http://localhost:3000') + '/pricing';
-
-type PlanFeature = { id: string; name: string; slug: string; description: string | null };
-type BillingPlan = {
-  id: string;
-  name: string;
-  slug: string;
-  description: string | null;
-  isDefault: boolean;
-  hasBaseFee: boolean;
-  publiclyVisible: boolean;
-  freeTrialDays: number | null;
-  freeTrialEnabled: boolean;
-  fee: { amount: number; amountFormatted: string; currency: string; currencySymbol: string } | null;
-  annualMonthlyFee: { amount: number; amountFormatted: string; currency: string; currencySymbol: string } | null;
-  features: PlanFeature[];
-};
 
 function shortId(id: string, head = 14): string {
   if (id.length <= head) return id;
@@ -109,179 +93,6 @@ function SectionLabel({
     >
       {children}
     </IvyText>
-  );
-}
-
-type MembershipSectionProps = {
-  plans: BillingPlan[];
-  activePlanSlugs: string[];
-  isLoadingPlans: boolean;
-  isLoadingSub: boolean;
-  isErrorPlans: boolean;
-  refetchPlans: () => void;
-};
-
-function PlanCard({
-  plan,
-  isActive,
-  onSubscribe,
-}: {
-  plan: BillingPlan;
-  isActive: boolean;
-  onSubscribe: () => void;
-}) {
-  const isFree = !plan.hasBaseFee;
-  const price = plan.fee
-    ? `${plan.fee.currencySymbol}${plan.fee.amountFormatted}/mo`
-    : 'Free';
-
-  return (
-    <View
-      className={`mb-3 overflow-hidden rounded-2xl border ${
-        isActive
-          ? 'border-ivy-accent bg-ivy-accent/10 dark:bg-ivy-accent/10'
-          : 'border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900'
-      }`}
-    >
-      <View className="px-4 pt-4 pb-3">
-        <View className="flex-row items-center justify-between">
-          <View className="flex-row items-center gap-2">
-            {isActive ? (
-              <View className="h-2.5 w-2.5 rounded-full bg-ivy-accent" />
-            ) : (
-              <View className="h-2.5 w-2.5 rounded-full bg-zinc-300 dark:bg-zinc-600" />
-            )}
-            <IvyText
-              className={`text-base font-semibold ${
-                isActive
-                  ? 'text-zinc-900 dark:text-white'
-                  : 'text-zinc-800 dark:text-zinc-200'
-              }`}
-            >
-              {plan.name}
-            </IvyText>
-            {isActive && (
-              <View className="rounded-full bg-ivy-accent px-2 py-0.5">
-                <IvyText className="text-[10px] font-bold uppercase tracking-wide text-zinc-900">
-                  Current
-                </IvyText>
-              </View>
-            )}
-          </View>
-          <IvyText
-            className={`text-base font-bold ${
-              isActive ? 'text-ivy-accent' : 'text-zinc-900 dark:text-white'
-            }`}
-          >
-            {isFree ? 'Free' : price}
-          </IvyText>
-        </View>
-
-        {plan.description ? (
-          <IvyText className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-            {plan.description}
-          </IvyText>
-        ) : null}
-
-        {plan.freeTrialEnabled && plan.freeTrialDays ? (
-          <IvyText className="mt-1 text-xs text-ivy-accent">
-            {plan.freeTrialDays}-day free trial
-          </IvyText>
-        ) : null}
-      </View>
-
-      {plan.features.length > 0 && (
-        <View className="border-t border-zinc-100 px-4 py-3 dark:border-zinc-800">
-          {plan.features.map((feature) => (
-            <View key={feature.id} className="flex-row items-center gap-2 py-0.5">
-              <IconSymbol
-                name="checkmark.circle.fill"
-                size={14}
-                color={isActive ? IvyColors.accent : '#71717a'}
-              />
-              <IvyText className="text-sm text-zinc-700 dark:text-zinc-300">
-                {feature.name}
-              </IvyText>
-            </View>
-          ))}
-        </View>
-      )}
-
-      {!isActive && plan.hasBaseFee && (
-        <View className="border-t border-zinc-100 px-4 py-3 dark:border-zinc-800">
-          <Pressable
-            onPress={onSubscribe}
-            className="items-center rounded-xl bg-ivy-accent py-2.5 active:opacity-80"
-          >
-            <IvyText className="text-sm font-semibold text-zinc-900">
-              {plan.freeTrialEnabled && plan.freeTrialDays
-                ? `Start ${plan.freeTrialDays}-day free trial`
-                : 'Subscribe'}
-            </IvyText>
-          </Pressable>
-        </View>
-      )}
-    </View>
-  );
-}
-
-function MembershipSection({
-  plans,
-  activePlanSlugs,
-  isLoadingPlans,
-  isLoadingSub,
-  isErrorPlans,
-  refetchPlans,
-}: MembershipSectionProps) {
-  const accent = IvyColors.accent;
-
-  if (isLoadingPlans || isLoadingSub) {
-    return (
-      <View className="items-center py-6">
-        <ActivityIndicator color={accent} />
-      </View>
-    );
-  }
-
-  if (isErrorPlans) {
-    return (
-      <IvyCard className="px-4 py-4">
-        <IvyText className="text-center text-sm text-zinc-500 dark:text-zinc-400">
-          Could not load membership plans.
-        </IvyText>
-        <Pressable
-          onPress={refetchPlans}
-          className="mt-3 self-center rounded-xl bg-zinc-100 px-4 py-2 dark:bg-zinc-800"
-        >
-          <IvyText className="text-sm font-medium text-zinc-900 dark:text-white">
-            Retry
-          </IvyText>
-        </Pressable>
-      </IvyCard>
-    );
-  }
-
-  const sortedPlans = [...plans].sort((a, b) => {
-    const aPrice = a.fee?.amount ?? 0;
-    const bPrice = b.fee?.amount ?? 0;
-    return aPrice - bPrice;
-  });
-
-  const handleSubscribe = () => {
-    void WebBrowser.openAuthSessionAsync(WEB_PRICING_URL);
-  };
-
-  return (
-    <View>
-      {sortedPlans.map((plan) => (
-        <PlanCard
-          key={plan.id}
-          plan={plan}
-          isActive={activePlanSlugs.includes(plan.slug)}
-          onSubscribe={handleSubscribe}
-        />
-      ))}
-    </View>
   );
 }
 
@@ -403,7 +214,7 @@ export default function ProfileScreen() {
             ) : null}
           </View>
 
-          <SectionLabel className="mt-6">Activity</SectionLabel>
+          {/* <SectionLabel className="mt-6">Activity</SectionLabel>
           <IvyCard className="mb-0 px-4 py-1">
             {meQuery.isLoading ? (
               <View className="items-center py-6">
@@ -447,9 +258,9 @@ export default function ProfileScreen() {
                 ))}
               </View>
             ) : null}
-          </IvyCard>
+          </IvyCard> */}
 
-          <SectionLabel>Ivy account</SectionLabel>
+          {/* <SectionLabel>Ivy account</SectionLabel>
           <IvyCard className="px-4 py-1">
             {meQuery.data ? (
               <>
@@ -472,9 +283,9 @@ export default function ProfileScreen() {
                 Sign in to see your Ivy account details.
               </IvyText>
             )}
-          </IvyCard>
+          </IvyCard> */}
 
-          <SectionLabel>Clerk</SectionLabel>
+          {/* <SectionLabel>Clerk</SectionLabel>
           <IvyCard className="px-4 py-1">
             <SettingsRow
               label="Clerk user ID"
@@ -485,7 +296,7 @@ export default function ProfileScreen() {
               value={clerkCreated ? formatDate(clerkCreated) : '—'}
             />
             <SettingsRow label="Auth provider" value="Clerk" isLast />
-          </IvyCard>
+          </IvyCard> */}
 
           <SectionLabel>Membership</SectionLabel>
           <MembershipSection
