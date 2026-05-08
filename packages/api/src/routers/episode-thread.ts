@@ -1,9 +1,6 @@
 import { TRPCError } from '@trpc/server';
 
-import {
-  displayNameForUser,
-  ensureUserForClerkId,
-} from '../lib/clerk-user';
+import { displayNameForUser, ensureUserForClerkId } from '../lib/clerk-user';
 import { protectedProcedure, publicProcedure, router } from '../trpc';
 
 const MAX_COMMENTS_PER_THREAD = 200;
@@ -12,7 +9,10 @@ const MAX_BATCH_VIDEO_IDS = 60;
 
 function sanitizeVideoId(input: unknown): string {
   if (typeof input !== 'string') {
-    throw new TRPCError({ code: 'BAD_REQUEST', message: 'videoId is required' });
+    throw new TRPCError({
+      code: 'BAD_REQUEST',
+      message: 'videoId is required',
+    });
   }
   const trimmed = input.trim();
   // YouTube IDs are typically 11 chars of [A-Za-z0-9_-]. Be permissive but bounded.
@@ -52,6 +52,40 @@ function parseCreateInput(val: unknown): { videoId: string; body: string } {
   return { videoId, body };
 }
 
+function parseCommentId(val: unknown): { commentId: string } {
+  if (!val || typeof val !== 'object') {
+    throw new TRPCError({ code: 'BAD_REQUEST', message: 'Invalid input' });
+  }
+  const o = val as Record<string, unknown>;
+  const commentId = typeof o.commentId === 'string' ? o.commentId.trim() : '';
+  if (!commentId.length) {
+    throw new TRPCError({
+      code: 'BAD_REQUEST',
+      message: 'commentId is required',
+    });
+  }
+  return { commentId };
+}
+
+function parseEditCommentInput(val: unknown): {
+  commentId: string;
+  body: string;
+} {
+  const { commentId } = parseCommentId(val);
+  const o = val as Record<string, unknown>;
+  const body = typeof o.body === 'string' ? o.body.trim() : '';
+  if (!body.length) {
+    throw new TRPCError({ code: 'BAD_REQUEST', message: 'body is required' });
+  }
+  if (body.length > MAX_COMMENT_LENGTH) {
+    throw new TRPCError({
+      code: 'BAD_REQUEST',
+      message: `Comment is too long (max ${MAX_COMMENT_LENGTH} characters)`,
+    });
+  }
+  return { commentId, body };
+}
+
 function parseCountsInput(val: unknown): { videoIds: string[] } {
   if (!val || typeof val !== 'object') {
     throw new TRPCError({ code: 'BAD_REQUEST', message: 'Invalid input' });
@@ -59,7 +93,10 @@ function parseCountsInput(val: unknown): { videoIds: string[] } {
   const o = val as Record<string, unknown>;
   const raw = o.videoIds;
   if (!Array.isArray(raw)) {
-    throw new TRPCError({ code: 'BAD_REQUEST', message: 'videoIds must be an array' });
+    throw new TRPCError({
+      code: 'BAD_REQUEST',
+      message: 'videoIds must be an array',
+    });
   }
   if (raw.length === 0) return { videoIds: [] };
   if (raw.length > MAX_BATCH_VIDEO_IDS) {
@@ -68,9 +105,7 @@ function parseCountsInput(val: unknown): { videoIds: string[] } {
       message: `Too many videoIds (max ${MAX_BATCH_VIDEO_IDS})`,
     });
   }
-  const cleaned = Array.from(
-    new Set(raw.map((v) => sanitizeVideoId(v))),
-  );
+  const cleaned = Array.from(new Set(raw.map((v) => sanitizeVideoId(v))));
   return { videoIds: cleaned };
 }
 
@@ -118,7 +153,11 @@ export const episodeThreadRouter = router({
         time: formatCommentTime(c.createdAt),
         createdAt: c.createdAt.toISOString(),
         body: c.body,
+        editedAt: null as string | null,
         mine: currentUserId != null && currentUserId === c.authorId,
+        likeCount: 0,
+        likedByMe: false,
+        replyTo: null as { id: string; name: string; body: string } | null,
       })),
     };
   }),
@@ -144,26 +183,85 @@ export const episodeThreadRouter = router({
         time: formatCommentTime(created.createdAt),
         createdAt: created.createdAt.toISOString(),
         body: created.body,
+        editedAt: null as string | null,
         mine: true,
+        likeCount: 0,
+        likedByMe: false,
+        replyTo: null as { id: string; name: string; body: string } | null,
       };
+    }),
+
+  /** Edit the body of your own comment. */
+  editComment: protectedProcedure
+    .input(parseEditCommentInput)
+    .mutation(async ({ ctx, input }) => {
+      const user = await ensureUserForClerkId(ctx.prisma, ctx.clerkUserId);
+      const comment = await ctx.prisma.episodeComment.findUnique({
+        where: { id: input.commentId },
+      });
+      if (!comment) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: 'Comment not found',
+        });
+      }
+      if (comment.authorId !== user.id) {
+        throw new TRPCError({
+          code: 'FORBIDDEN',
+          message: 'You can only edit your own comments',
+        });
+      }
+      const updated = await ctx.prisma.episodeComment.update({
+        where: { id: input.commentId },
+        data: { body: input.body },
+      });
+      return { commentId: updated.id, body: updated.body };
+    }),
+
+  /** Permanently delete your own comment. */
+  deleteComment: protectedProcedure
+    .input(parseCommentId)
+    .mutation(async ({ ctx, input }) => {
+      const user = await ensureUserForClerkId(ctx.prisma, ctx.clerkUserId);
+      const comment = await ctx.prisma.episodeComment.findUnique({
+        where: { id: input.commentId },
+      });
+      if (!comment) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: 'Comment not found',
+        });
+      }
+      if (comment.authorId !== user.id) {
+        throw new TRPCError({
+          code: 'FORBIDDEN',
+          message: 'You can only delete your own comments',
+        });
+      }
+      await ctx.prisma.episodeComment.delete({
+        where: { id: input.commentId },
+      });
+      return { commentId: input.commentId };
     }),
 
   /**
    * Batch comment counts for a set of video IDs. Useful if we later want to
    * surface a "Discuss (N)" badge on the Watch grid without N separate queries.
    */
-  counts: publicProcedure.input(parseCountsInput).query(async ({ ctx, input }) => {
-    if (input.videoIds.length === 0) return {} as Record<string, number>;
-    const rows = await ctx.prisma.episodeComment.groupBy({
-      by: ['youtubeVideoId'],
-      where: { youtubeVideoId: { in: input.videoIds } },
-      _count: { _all: true },
-    });
-    const result: Record<string, number> = {};
-    for (const id of input.videoIds) result[id] = 0;
-    for (const row of rows) {
-      result[row.youtubeVideoId] = row._count._all;
-    }
-    return result;
-  }),
+  counts: publicProcedure
+    .input(parseCountsInput)
+    .query(async ({ ctx, input }) => {
+      if (input.videoIds.length === 0) return {} as Record<string, number>;
+      const rows = await ctx.prisma.episodeComment.groupBy({
+        by: ['youtubeVideoId'],
+        where: { youtubeVideoId: { in: input.videoIds } },
+        _count: { _all: true },
+      });
+      const result: Record<string, number> = {};
+      for (const id of input.videoIds) result[id] = 0;
+      for (const row of rows) {
+        result[row.youtubeVideoId] = row._count._all;
+      }
+      return result;
+    }),
 });
