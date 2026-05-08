@@ -1,6 +1,6 @@
 'use client';
 
-import { UserButton, useAuth } from '@clerk/nextjs';
+import { useAuth } from '@clerk/nextjs';
 import Link from 'next/link';
 
 const IOS_STORE_URL = process.env.NEXT_PUBLIC_IOS_APP_URL;
@@ -51,48 +51,6 @@ export default function HomePage() {
         className="pointer-events-none absolute -right-24 top-1/3 h-[420px] w-[420px] rounded-full bg-[var(--ivy-accent)]/5 blur-3xl"
       />
 
-      <header className="relative z-10 border-b border-white/[0.06] bg-[#060607]/70 backdrop-blur-xl">
-        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-6 sm:px-8">
-          <Link
-            className="text-sm font-semibold tracking-[0.25em] text-zinc-100"
-            href="/"
-          >
-            IVY
-          </Link>
-          <nav
-            aria-label="Primary"
-            className="flex flex-wrap items-center justify-end gap-3 sm:gap-6"
-          >
-            <Link
-              className="hidden text-xs font-medium uppercase tracking-[0.18em] text-zinc-500 transition hover:text-zinc-300 sm:inline"
-              href="/pricing"
-            >
-              Pricing
-            </Link>
-            {isLoaded && userId ? (
-              <UserButton />
-            ) : isLoaded ? (
-              <>
-                <Link
-                  className="rounded-full border border-white/15 bg-transparent px-4 py-2 text-xs font-medium uppercase tracking-[0.14em] text-zinc-200 transition hover:border-[var(--ivy-accent)]/50 hover:text-white"
-                  href="/sign-in"
-                >
-                  Sign in
-                </Link>
-                <Link
-                  className="rounded-full bg-gradient-to-r from-[var(--ivy-accent-deep)] via-[var(--ivy-accent)] to-[var(--ivy-accent-deep)] px-4 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--ivy-on-accent)] shadow-[0_0_24px_-4px_rgba(0,250,154,0.45)] transition hover:brightness-110"
-                  href="/sign-up"
-                >
-                  Sign up
-                </Link>
-              </>
-            ) : (
-              <span className="h-9 w-24 rounded-full bg-zinc-800/50" aria-hidden />
-            )}
-          </nav>
-        </div>
-      </header>
-
       <main className="relative z-10 mx-auto grid max-w-6xl gap-14 px-6 py-14 sm:gap-16 sm:px-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:items-center lg:py-20">
         <div className="max-w-xl lg:max-w-none">
           <p className="mb-5 text-xs font-medium uppercase tracking-[0.35em] text-[var(--ivy-accent)]">
@@ -105,8 +63,9 @@ export default function HomePage() {
             Elevate every&nbsp;session.
           </h1>
           <p className="mt-6 max-w-md text-base leading-relaxed text-zinc-400">
-            Download Ivy for a focused, editorial experience—calm surfaces, crisp
-            mint accents, and the same refined feel you already know from mobile.
+            Download Ivy for a focused, editorial experience—calm surfaces,
+            crisp mint accents, and the same refined feel you already know from
+            mobile.
           </p>
 
           <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
@@ -119,7 +78,12 @@ export default function HomePage() {
               subtitle="Download on the"
               title="App Store"
             >
-              <svg aria-hidden className="h-7 w-7" viewBox="0 0 24 24" fill="currentColor">
+              <svg
+                aria-hidden
+                className="h-7 w-7"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+              >
                 <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.18 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" />
               </svg>
             </StoreBadge>
@@ -140,7 +104,6 @@ export default function HomePage() {
               </svg>
             </StoreBadge>
           </div>
-
         </div>
 
         <div className="relative mx-auto flex w-full max-w-[320px] justify-center lg:mx-0 lg:max-w-none">
@@ -161,11 +124,15 @@ export default function HomePage() {
                   <div className="mb-2 flex items-end justify-between gap-2">
                     <span
                       className="text-2xl font-light text-white"
-                      style={{ fontFamily: 'var(--font-display), Georgia, serif' }}
+                      style={{
+                        fontFamily: 'var(--font-display), Georgia, serif',
+                      }}
                     >
                       Now
                     </span>
-                    <span className="text-xs text-[var(--ivy-accent)]">+2.4%</span>
+                    <span className="text-xs text-[var(--ivy-accent)]">
+                      +2.4%
+                    </span>
                   </div>
                   <div className="flex h-14 items-end gap-0.5">
                     {[40, 65, 45, 78, 55, 88, 62, 92, 70].map((h, i) => (

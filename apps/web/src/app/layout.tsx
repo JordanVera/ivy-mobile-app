@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Cormorant_Garamond, DM_Sans } from 'next/font/google';
 
 import { AppProviders } from '@/app/providers';
+import { Header } from '@/components/header';
 
 import './globals.css';
 
@@ -28,10 +29,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${display.variable} ${sans.variable}`}>
-      <body className="antialiased">
-        <AppProviders>{children}</AppProviders>
-      </body>
-    </html>
+    <AppProviders>
+      <html lang="en" className={`${display.variable} ${sans.variable}`}>
+        <Header />
+        <body className="antialiased">{children}</body>
+      </html>
+    </AppProviders>
   );
 }
