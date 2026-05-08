@@ -61,7 +61,12 @@ export type BillingSubscriptionData = {
   activePlanSlugs: string[];
 } | null;
 
-const ACTIVE_ITEM_STATUSES = new Set(['active', 'past_due', 'incomplete']);
+const ACTIVE_ITEM_STATUSES = new Set([
+  'active',
+  'trialing',
+  'past_due',
+  'incomplete',
+]);
 
 export const billingRouter = router({
   /**
@@ -129,6 +134,11 @@ export const billingRouter = router({
           ctx.clerkUserId,
         );
 
+        // Fetch the plan list once so we can resolve slugs for items where
+        // item.plan is null (Clerk sometimes omits the nested plan object).
+        const planList = await clerk.billing.getPlanList({ payerType: 'user' });
+        const planSlugById = new Map(planList.data.map((p) => [p.id, p.slug]));
+
         const activePlanIds: string[] = [];
         const activePlanSlugs: string[] = [];
         for (const item of sub.subscriptionItems) {
@@ -138,6 +148,8 @@ export const billingRouter = router({
               activePlanSlugs.push(item.plan.slug);
             } else if (item.planId) {
               activePlanIds.push(item.planId);
+              const slug = planSlugById.get(item.planId);
+              if (slug) activePlanSlugs.push(slug);
             }
           }
         }

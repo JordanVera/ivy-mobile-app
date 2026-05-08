@@ -51,6 +51,7 @@ const MAPPING = {
   'video.fill': 'videocam',
   xmark: 'close',
   'arrow.2.squarepath': 'compare-arrows',
+  'lock.fill': 'lock',
 } as const satisfies IconMapping;
 
 export type IconSymbolName = keyof typeof MAPPING;

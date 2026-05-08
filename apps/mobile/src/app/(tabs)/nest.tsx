@@ -1,8 +1,15 @@
 import { useAuth } from '@clerk/expo';
-import { useRouter, type Href } from 'expo-router';
+import { useFocusEffect, useRouter, type Href } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
-import { useCallback } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, View } from 'react-native';
+import { useCallback, useEffect, useRef } from 'react';
+import {
+  ActivityIndicator,
+  AppState,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { HubCard } from '@/components/ivy/hub-card';
@@ -21,33 +28,38 @@ const WEB_PRICING_URL =
 /** Clerk plan slugs that grant access to The Nest. */
 const NEST_PLANS = ['hub', 'mentee'] as const;
 
-function NestPaywall() {
+function NestPaywallOverlay() {
   return (
-    <SafeAreaView style={{ flex: 1 }} edges={['top', 'left', 'right']}>
-      <ScreenHeader title="The Nest" />
-      <View className="flex-1 items-center justify-center bg-zinc-50 px-8 dark:bg-zinc-950">
-        <View className="mb-6 h-20 w-20 items-center justify-center rounded-3xl bg-ivy-accent/15 dark:bg-ivy-accent/20">
-          <IconSymbol name="lock.fill" size={36} color={ACCENT} />
+    <View
+      style={[
+        StyleSheet.absoluteFill,
+        { backgroundColor: 'rgba(9,9,11,0.72)' },
+      ]}
+      className="items-center justify-center px-8"
+    >
+      <View className="w-full max-w-xs items-center rounded-3xl border border-zinc-700/60 bg-zinc-900/80 px-6 py-8">
+        <View className="mb-5 h-16 w-16 items-center justify-center rounded-2xl bg-ivy-accent/20">
+          <IconSymbol name="lock.fill" size={30} color={ACCENT} />
         </View>
 
-        <IvyText className="mb-2 text-center text-xl font-bold text-zinc-900 dark:text-white">
+        <IvyText className="mb-2 text-center text-lg font-bold text-white">
           Members only
         </IvyText>
-        <IvyText className="mb-8 text-center text-sm leading-5 text-zinc-500 dark:text-zinc-400">
+        <IvyText className="mb-7 text-center text-sm leading-5 text-zinc-400">
           The Nest is available on the Hub and Mentee plans. Upgrade to connect
           with your community.
         </IvyText>
 
         <Pressable
           onPress={() => void WebBrowser.openAuthSessionAsync(WEB_PRICING_URL)}
-          className="w-full items-center rounded-2xl bg-ivy-accent px-6 py-3.5 active:opacity-80"
+          className="w-full items-center rounded-xl bg-ivy-accent py-3 active:opacity-80"
         >
-          <IvyText className="text-base font-semibold text-zinc-900">
+          <IvyText className="text-sm font-semibold text-zinc-900">
             View plans
           </IvyText>
         </Pressable>
       </View>
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -120,20 +132,84 @@ function resolveIcon(icon: string | null | undefined): IconSymbolName {
   return FALLBACK_ICON;
 }
 
+/** Static backdrop shown behind the paywall so users can glimpse what they're missing. */
+function HubsPreview() {
+  const previewHubs = Object.entries(HUB_VISUALS).slice(0, 3);
+  return (
+    <>
+      <View className="mt-8 mb-3">
+        <IvyText className="text-sm font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+          All Hubs
+        </IvyText>
+      </View>
+      {previewHubs.map(([slug, visuals]) => (
+        <HubCard
+          key={slug}
+          name={slug
+            .split('-')
+            .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+            .join(' ')}
+          tagline={null}
+          icon={FALLBACK_ICON}
+          memberCount={0}
+          joined={false}
+          joinPending={false}
+          onOpen={() => undefined}
+          onToggleJoin={() => undefined}
+          imageUrl={visuals.imageUrl}
+          gradient={visuals.gradient}
+        />
+      ))}
+    </>
+  );
+}
+
 export default function TheNestScreen() {
   const router = useRouter();
-  const { isLoaded, isSignedIn, has } = useAuth();
+  const { isLoaded, isSignedIn } = useAuth();
+  const toast = useToast();
   const utils = trpc.useUtils();
 
+  // Check subscription directly from the backend — avoids stale JWT claims
+  // that `has()` would read from the cached session token.
+  const subscriptionQuery = trpc.billing.mySubscription.useQuery(undefined, {
+    enabled: isLoaded && isSignedIn === true,
+    staleTime: 0,
+  });
+
   const hasNestAccess =
-    isLoaded && isSignedIn && NEST_PLANS.some((plan) => has?.({ plan }));
+    isLoaded &&
+    isSignedIn === true &&
+    subscriptionQuery.data != null &&
+    NEST_PLANS.some((plan) => subscriptionQuery.data!.activePlanSlugs.includes(plan));
 
-  if (isLoaded && (!isSignedIn || !hasNestAccess)) {
-    return <NestPaywall />;
-  }
-  const toast = useToast();
+  const showPaywall = isLoaded && (!isSignedIn || (!subscriptionQuery.isLoading && !hasNestAccess));
 
-  const hubsQuery = trpc.hubs.list.useQuery();
+  // Invalidate the subscription query whenever this tab gains focus so the
+  // access check is always fresh (e.g. returning from the pricing page).
+  useFocusEffect(
+    useCallback(() => {
+      void utils.billing.mySubscription.invalidate();
+    }, [utils]),
+  );
+
+  // Also invalidate when the app returns to the foreground — covers the case
+  // where the user subscribed via the in-app browser while this tab was already
+  // focused, so useFocusEffect wouldn't fire again.
+  const appStateRef = useRef(AppState.currentState);
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', (nextState) => {
+      if (appStateRef.current.match(/inactive|background/) && nextState === 'active') {
+        void utils.billing.mySubscription.invalidate();
+      }
+      appStateRef.current = nextState;
+    });
+    return () => subscription.remove();
+  }, [utils]);
+
+  const hubsQuery = trpc.hubs.list.useQuery(undefined, {
+    enabled: !showPaywall,
+  });
 
   const join = trpc.hubs.join.useMutation({
     onSuccess: (_data, variables) => {
@@ -198,6 +274,8 @@ export default function TheNestScreen() {
           style={{ flex: 1 }}
           contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 32 }}
           showsVerticalScrollIndicator={false}
+          scrollEnabled={!showPaywall}
+          pointerEvents={showPaywall ? 'none' : 'auto'}
         >
           {hubsQuery.isLoading ? (
             <View className="items-center py-10">
@@ -223,6 +301,8 @@ export default function TheNestScreen() {
                 No hubs yet. Check back soon.
               </IvyText>
             </View>
+          ) : showPaywall ? (
+            <HubsPreview />
           ) : (
             <>
               {myHubs.length > 0 ? (
@@ -258,9 +338,7 @@ export default function TheNestScreen() {
 
               {allHubs.length > 0 ? (
                 <>
-                  <View
-                    className={`mb-3 flex-row items-end justify-between ${myHubs.length > 0 ? 'mt-8' : 'mt-8'}`}
-                  >
+                  <View className="mt-8 mb-3 flex-row items-end justify-between">
                     <IvyText className="text-sm font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
                       All Hubs
                     </IvyText>
@@ -287,15 +365,9 @@ export default function TheNestScreen() {
               ) : null}
             </>
           )}
-
-          {!isSignedIn ? (
-            <View className="mt-6 rounded-2xl border border-zinc-200 bg-zinc-100/80 px-4 py-3 dark:border-zinc-800 dark:bg-zinc-900/60">
-              <IvyText className="text-sm text-zinc-600 dark:text-zinc-400">
-                Sign in to join a hub and chat with the community.
-              </IvyText>
-            </View>
-          ) : null}
         </ScrollView>
+
+        {showPaywall && <NestPaywallOverlay />}
       </View>
     </SafeAreaView>
   );
