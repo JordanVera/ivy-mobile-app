@@ -5,7 +5,6 @@ import { ActivityIndicator, Pressable, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { HubCard } from '@/components/ivy/hub-card';
-import { IvyHeading } from '@/components/ivy/ivy-heading';
 import { IvyText } from '@/components/ivy/ivy-text';
 import { ScreenHeader } from '@/components/ivy/screen-header';
 import { useToast } from '@/components/ivy/toast-provider';
@@ -156,26 +155,6 @@ export default function TheNestScreen() {
           contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 32 }}
           showsVerticalScrollIndicator={false}
         >
-          <View className="mt-4 items-center">
-            <IvyText className="text-[10px] font-semibold uppercase tracking-[3px] text-ivy-accent">
-              SOAR Hubs · Small Groups
-            </IvyText>
-            <View className="mt-2 h-px w-12 bg-ivy-accent" />
-            <IvyHeading
-              level="brand"
-              className="mt-3 text-center text-[30px] leading-[1.15] text-zinc-900 dark:text-white"
-            >
-              The Nest
-            </IvyHeading>
-            <IvyText className="mt-2 text-center text-[14px] italic leading-5 text-zinc-600 dark:text-zinc-400">
-              Find your people. Find your place.
-            </IvyText>
-            {/* <IvyText className="mt-3 max-w-[320px] text-center text-[13px] leading-5 text-zinc-600 dark:text-zinc-400">
-              Members know these as Hubs or small groups. The Nest houses all
-              four: Entrepreneurs, College Life, Golden Age, and Ahh Man.
-            </IvyText> */}
-          </View>
-
           {hubsQuery.isLoading ? (
             <View className="items-center py-10">
               <ActivityIndicator color={ACCENT} />

@@ -50,6 +50,7 @@ const MAPPING = {
   link: 'link',
   'video.fill': 'videocam',
   xmark: 'close',
+  'arrow.2.squarepath': 'compare-arrows',
 } as const satisfies IconMapping;
 
 export type IconSymbolName = keyof typeof MAPPING;

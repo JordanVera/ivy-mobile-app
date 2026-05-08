@@ -47,9 +47,9 @@ export default function TabLayout() {
       <Tabs.Screen
         name="vault"
         options={{
-          title: 'Vault',
+          title: 'Exchange',
           tabBarIcon: ({ color }) => (
-            <IconSymbol size={26} name="archivebox.fill" color={color} />
+            <IconSymbol size={26} name="arrow.2.squarepath" color={color} />
           ),
         }}
       />

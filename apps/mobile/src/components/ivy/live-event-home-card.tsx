@@ -22,8 +22,7 @@ import { useCountdown } from '@/hooks/use-countdown';
 import { trpc } from '@/lib/trpc';
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
-
-const DEFAULT_HERO_IMAGE: number = require('@/assets/images/ivy-oprah-1.jpeg');
+const DEFAULT_HERO_IMAGE: number = require('@/assets/images/ivy-grid.png');
 
 function formatEventDate(iso: string): string {
   try {
@@ -109,7 +108,7 @@ export function LiveEventHomeCard({
     transform: [{ scale: interpolate(pulse.value, [0, 1], [0.92, 1.12]) }],
   }));
 
-  const title = event?.title ?? 'Monday Mentorship Moment';
+  const title = event?.title ?? 'Monday Mentoring Moments #MMM';
 
   return (
     <AnimatedPressable

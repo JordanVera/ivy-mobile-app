@@ -60,7 +60,7 @@ export function ResourceRow({
         onPress={openResource}
         accessibilityRole="button"
         accessibilityLabel={`${title}, open resource`}
-        className="mb-3 overflow-hidden rounded-2xl border border-zinc-200 active:opacity-90 dark:border-zinc-800"
+        className=" overflow-hidden rounded-2xl border border-zinc-200 active:opacity-90 dark:border-zinc-800"
       >
         <View className="relative w-full" style={styles.imageArea}>
           <Image
@@ -85,7 +85,11 @@ export function ResourceRow({
               <IvyText className="text-xs font-medium text-ivy-accent">
                 PDF
               </IvyText>
-              <IconSymbol name="chevron.right" size={18} color={IvyColors.accent} />
+              <IconSymbol
+                name="chevron.right"
+                size={18}
+                color={IvyColors.accent}
+              />
             </View>
           </View>
         </View>

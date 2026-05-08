@@ -26,7 +26,7 @@ function parseHubSlug(val: unknown): { slug: string } {
   return { slug };
 }
 
-function parseSendMessage(val: unknown): { slug: string; body: string } {
+function parseSendMessage(val: unknown): { slug: string; body: string; replyToId?: string } {
   const { slug } = parseHubSlug(val);
   const o = val as Record<string, unknown>;
   const body = typeof o.body === 'string' ? o.body.trim() : '';
@@ -39,7 +39,39 @@ function parseSendMessage(val: unknown): { slug: string; body: string } {
       message: `Message is too long (max ${MAX_MESSAGE_LENGTH} characters)`,
     });
   }
-  return { slug, body };
+  const replyToId =
+    typeof o.replyToId === 'string' && o.replyToId.trim().length
+      ? o.replyToId.trim()
+      : undefined;
+  return { slug, body, replyToId };
+}
+
+function parseMessageId(val: unknown): { messageId: string } {
+  if (!val || typeof val !== 'object') {
+    throw new TRPCError({ code: 'BAD_REQUEST', message: 'Invalid input' });
+  }
+  const o = val as Record<string, unknown>;
+  const messageId = typeof o.messageId === 'string' ? o.messageId.trim() : '';
+  if (!messageId.length) {
+    throw new TRPCError({ code: 'BAD_REQUEST', message: 'messageId is required' });
+  }
+  return { messageId };
+}
+
+function parseEditMessage(val: unknown): { messageId: string; body: string } {
+  const { messageId } = parseMessageId(val);
+  const o = val as Record<string, unknown>;
+  const body = typeof o.body === 'string' ? o.body.trim() : '';
+  if (!body.length) {
+    throw new TRPCError({ code: 'BAD_REQUEST', message: 'body is required' });
+  }
+  if (body.length > MAX_MESSAGE_LENGTH) {
+    throw new TRPCError({
+      code: 'BAD_REQUEST',
+      message: `Message is too long (max ${MAX_MESSAGE_LENGTH} characters)`,
+    });
+  }
+  return { messageId, body };
 }
 
 function formatMessageTime(date: Date): string {
@@ -335,10 +367,26 @@ export const hubsRouter = router({
       where: { hubId: hub.id },
       orderBy: { createdAt: 'asc' },
       take: MAX_MESSAGES_PER_PAGE,
-      include: { author: true },
+      include: {
+        author: true,
+        replyTo: { include: { author: true } },
+        _count: { select: { reactions: true } },
+      },
     });
 
     const currentUserId = await resolveCurrentUserId(ctx);
+
+    let likedIds = new Set<string>();
+    if (currentUserId && rows.length > 0) {
+      const myReactions = await ctx.prisma.hubMessageReaction.findMany({
+        where: {
+          userId: currentUserId,
+          messageId: { in: rows.map((r) => r.id) },
+        },
+        select: { messageId: true },
+      });
+      likedIds = new Set(myReactions.map((r) => r.messageId));
+    }
 
     return {
       slug: hub.slug,
@@ -350,7 +398,17 @@ export const hubsRouter = router({
         time: formatMessageTime(m.createdAt),
         createdAt: m.createdAt.toISOString(),
         body: m.body,
+        editedAt: m.editedAt ? m.editedAt.toISOString() : null,
         mine: currentUserId != null && currentUserId === m.authorId,
+        likeCount: m._count.reactions,
+        likedByMe: likedIds.has(m.id),
+        replyTo: m.replyTo
+          ? {
+              id: m.replyTo.id,
+              name: displayNameForUser(m.replyTo.author),
+              body: m.replyTo.body,
+            }
+          : null,
       })),
     };
   }),
@@ -376,11 +434,28 @@ export const hubsRouter = router({
         create: { hubId: hub.id, userId: user.id },
       });
 
+      let replyToSnippet: { id: string; name: string; body: string } | null = null;
+      if (input.replyToId) {
+        const replyTarget = await ctx.prisma.hubMessage.findUnique({
+          where: { id: input.replyToId },
+          include: { author: true },
+        });
+        if (!replyTarget) {
+          throw new TRPCError({ code: 'NOT_FOUND', message: 'Reply target not found' });
+        }
+        replyToSnippet = {
+          id: replyTarget.id,
+          name: displayNameForUser(replyTarget.author),
+          body: replyTarget.body,
+        };
+      }
+
       const created = await ctx.prisma.hubMessage.create({
         data: {
           hubId: hub.id,
           authorId: user.id,
           body: input.body,
+          replyToId: input.replyToId ?? null,
         },
         include: { author: true },
       });
@@ -393,7 +468,11 @@ export const hubsRouter = router({
         time: formatMessageTime(created.createdAt),
         createdAt: created.createdAt.toISOString(),
         body: created.body,
+        editedAt: null,
         mine: true,
+        likeCount: 0,
+        likedByMe: false,
+        replyTo: replyToSnippet,
       };
     }),
 
@@ -499,6 +578,74 @@ export const hubsRouter = router({
         rsvpCount: created._count.rsvps,
         iAmGoing: false,
       };
+    }),
+
+  /** Edit the body of your own hub message. Sets editedAt to now. */
+  editMessage: protectedProcedure
+    .input(parseEditMessage)
+    .mutation(async ({ ctx, input }) => {
+      const user = await ensureUserForClerkId(ctx.prisma, ctx.clerkUserId);
+      const message = await ctx.prisma.hubMessage.findUnique({
+        where: { id: input.messageId },
+      });
+      if (!message) {
+        throw new TRPCError({ code: 'NOT_FOUND', message: 'Message not found' });
+      }
+      if (message.authorId !== user.id) {
+        throw new TRPCError({ code: 'FORBIDDEN', message: 'You can only edit your own messages' });
+      }
+      const updated = await ctx.prisma.hubMessage.update({
+        where: { id: input.messageId },
+        data: { body: input.body, editedAt: new Date() },
+      });
+      return {
+        messageId: updated.id,
+        body: updated.body,
+        editedAt: updated.editedAt!.toISOString(),
+      };
+    }),
+
+  /** Permanently delete your own hub message. */
+  deleteMessage: protectedProcedure
+    .input(parseMessageId)
+    .mutation(async ({ ctx, input }) => {
+      const user = await ensureUserForClerkId(ctx.prisma, ctx.clerkUserId);
+      const message = await ctx.prisma.hubMessage.findUnique({
+        where: { id: input.messageId },
+      });
+      if (!message) {
+        throw new TRPCError({ code: 'NOT_FOUND', message: 'Message not found' });
+      }
+      if (message.authorId !== user.id) {
+        throw new TRPCError({ code: 'FORBIDDEN', message: 'You can only delete your own messages' });
+      }
+      await ctx.prisma.hubMessage.delete({ where: { id: input.messageId } });
+      return { messageId: input.messageId };
+    }),
+
+  /** Toggle a 👍 reaction on a hub message. */
+  toggleReaction: protectedProcedure
+    .input(parseMessageId)
+    .mutation(async ({ ctx, input }) => {
+      const user = await ensureUserForClerkId(ctx.prisma, ctx.clerkUserId);
+
+      const existing = await ctx.prisma.hubMessageReaction.findUnique({
+        where: { messageId_userId: { messageId: input.messageId, userId: user.id } },
+      });
+
+      if (existing) {
+        await ctx.prisma.hubMessageReaction.delete({ where: { id: existing.id } });
+      } else {
+        await ctx.prisma.hubMessageReaction.create({
+          data: { messageId: input.messageId, userId: user.id },
+        });
+      }
+
+      const likeCount = await ctx.prisma.hubMessageReaction.count({
+        where: { messageId: input.messageId },
+      });
+
+      return { messageId: input.messageId, likedByMe: !existing, likeCount };
     }),
 
   setEventRsvp: protectedProcedure

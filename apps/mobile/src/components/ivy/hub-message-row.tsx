@@ -28,35 +28,39 @@ export function HubMessageRow({
   const isMine = variant === 'mine' || variant === 'pending';
   const isPending = variant === 'pending';
 
+  const avatarSlot = (imageUrl?: string | null) =>
+    imageUrl ? (
+      <Image
+        source={{ uri: imageUrl }}
+        style={{ width: '100%', height: '100%' }}
+        contentFit="cover"
+        accessible={false}
+      />
+    ) : (
+      <View className="flex-1 items-center justify-center">
+        <IconSymbol
+          name="person.crop.circle.fill"
+          size={26}
+          color={IvyColors.accent}
+        />
+      </View>
+    );
+
   return (
     <View
-      className={`flex-row gap-2 ${compact ? 'mt-1' : 'mt-3'} ${
+      className={`flex-row items-end gap-2 ${compact ? 'mt-1' : 'mt-3'} ${
         isMine ? 'justify-end' : 'justify-start'
       } ${isPending ? 'opacity-70' : ''}`}
       accessibilityLabel={`Message from ${name}`}
     >
+      {/* Left avatar — other users */}
       {!isMine ? (
-        <View className="h-8 w-8 shrink-0 overflow-hidden rounded-full bg-ivy-accent/15 dark:bg-ivy-accent/25">
-          {compact ? null : authorImageUrl ? (
-            <Image
-              source={{ uri: authorImageUrl }}
-              style={{ width: '100%', height: '100%' }}
-              contentFit="cover"
-              accessible={false}
-            />
-          ) : (
-            <View className="flex-1 items-center justify-center">
-              <IconSymbol
-                name="person.crop.circle.fill"
-                size={26}
-                color={IvyColors.accent}
-              />
-            </View>
-          )}
+        <View className="h-7 w-7 shrink-0 overflow-hidden rounded-full bg-ivy-accent/15 dark:bg-ivy-accent/25">
+          {avatarSlot(authorImageUrl)}
         </View>
       ) : null}
 
-      <View className={`max-w-[78%] ${isMine ? 'items-end' : 'items-start'}`}>
+      <View className={`max-w-[75%] ${isMine ? 'items-end' : 'items-start'}`}>
         {!compact ? (
           <View
             className={`mb-1 flex-row items-baseline gap-2 ${
@@ -91,6 +95,13 @@ export function HubMessageRow({
           </IvyText>
         </View>
       </View>
+
+      {/* Right avatar — own messages */}
+      {isMine ? (
+        <View className="h-7 w-7 shrink-0 overflow-hidden rounded-full bg-ivy-accent/15 dark:bg-ivy-accent/25">
+          {avatarSlot(authorImageUrl)}
+        </View>
+      ) : null}
     </View>
   );
 }

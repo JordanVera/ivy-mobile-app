@@ -1,7 +1,7 @@
-import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
 
+import { GrayscaleCoverImage } from '@/components/ivy/grayscale-cover-image';
 import { IconSymbol, type IconSymbolName } from '@/components/ui/icon-symbol';
 import { IvyColors } from '@/constants/ivy-colors';
 
@@ -37,7 +37,7 @@ export function HubCard({
   imageUrl,
   gradient,
 }: HubCardProps) {
-  const hasVisuals = imageUrl && gradient;
+  const hasVisuals = !!imageUrl;
 
   return (
     <Pressable
@@ -47,19 +47,11 @@ export function HubCard({
     >
       {hasVisuals ? (
         <View style={styles.heroFrame}>
-          <Image
+          <GrayscaleCoverImage
             source={{ uri: imageUrl }}
-            style={StyleSheet.absoluteFillObject}
             contentFit="cover"
             contentPosition="center"
             cachePolicy="memory-disk"
-          />
-          <LinearGradient
-            colors={gradient}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={StyleSheet.absoluteFillObject}
-            pointerEvents="none"
           />
           <LinearGradient
             colors={[
@@ -136,7 +128,7 @@ export function HubCard({
                 </IvyText>
               ) : null}
 
-              <IvyText className="mt-2 text-xs font-medium text-zinc-400 dark:text-zinc-500">
+              <IvyText className={`mt-2 text-xs font-medium ${joined ? 'text-zinc-500' : 'text-zinc-400 dark:text-zinc-500'}`}>
                 {formatMemberCount(memberCount)}
               </IvyText>
             </View>
@@ -151,25 +143,25 @@ export function HubCard({
           accessibilityLabel={joined ? `Leave ${name}` : `Join ${name}`}
           className={`flex-1 flex-row items-center justify-center gap-1.5 rounded-xl px-3 py-2.5 active:opacity-90 disabled:opacity-50 ${
             joined
-              ? 'border border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900'
+              ? 'bg-black dark:border dark:border-zinc-700 dark:bg-zinc-900'
               : 'bg-ivy-accent'
           }`}
         >
           {joinPending ? (
             <ActivityIndicator
               size="small"
-              color={joined ? IvyColors.accent : IvyColors.onAccent}
+              color={joined ? '#ffffff' : IvyColors.onAccent}
             />
           ) : (
             <IconSymbol
               name={joined ? 'checkmark.circle.fill' : 'plus.circle.fill'}
               size={18}
-              color={joined ? IvyColors.accent : IvyColors.onAccent}
+              color={joined ? '#ffffff' : IvyColors.onAccent}
             />
           )}
           <IvyText
             className={`text-sm font-semibold ${
-              joined ? 'text-ivy-accent' : 'text-zinc-900'
+              joined ? 'text-white' : 'text-zinc-900'
             }`}
           >
             {joined ? 'Joined' : 'Join hub'}

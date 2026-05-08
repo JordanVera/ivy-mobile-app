@@ -9,7 +9,9 @@ import { IvyCard } from '@/components/ivy/ivy-card';
 import { IvyHeading } from '@/components/ivy/ivy-heading';
 import { IvyText } from '@/components/ivy/ivy-text';
 import { LiveEventHomeCard } from '@/components/ivy/live-event-home-card';
+import { ResourceRow } from '@/components/ivy/resource-row';
 import { IconSymbol } from '@/components/ui/icon-symbol';
+import { vaultResources } from '@/data/mock/content';
 
 const ivyDailyEdge = require('@/assets/images/ivy-1.jpeg');
 const ivyFocus = require('@/assets/images/ivy-7.jpeg');
@@ -47,6 +49,18 @@ export default function HomeScreen() {
             image={ivyFocus}
             imageContentPosition="top"
           />
+
+          <IvyText className="my-3 text-sm font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+            Resources
+          </IvyText>
+          {vaultResources.map((r) => (
+            <ResourceRow
+              key={r.id}
+              title={r.title}
+              imageUrl={r.imageUrl}
+              url={r.url}
+            />
+          ))}
         </View>
       </ScrollView>
     </SafeAreaView>
