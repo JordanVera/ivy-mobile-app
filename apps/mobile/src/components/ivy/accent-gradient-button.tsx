@@ -1,15 +1,17 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { Pressable, Text, type PressableProps } from 'react-native';
 
-type GoldGradientButtonProps = PressableProps & {
+import { IvyColors } from '@/constants/ivy-colors';
+
+type AccentGradientButtonProps = PressableProps & {
   title: string;
 };
 
-export function GoldGradientButton({ title, disabled, ...pressableProps }: GoldGradientButtonProps) {
+export function AccentGradientButton({ title, disabled, ...pressableProps }: AccentGradientButtonProps) {
   return (
     <Pressable disabled={disabled} {...pressableProps} className="rounded-xl opacity-100 active:opacity-90">
       <LinearGradient
-        colors={['#b45309', '#f59e0b', '#b45309']}
+        colors={[...IvyColors.accentGradient]}
         start={{ x: 0, y: 0.5 }}
         end={{ x: 1, y: 0.5 }}
         style={{
@@ -18,7 +20,7 @@ export function GoldGradientButton({ title, disabled, ...pressableProps }: GoldG
           borderRadius: 12,
           alignItems: 'center',
         }}>
-        <Text className="text-base font-semibold text-white">{title}</Text>
+        <Text className="text-base font-semibold text-zinc-900">{title}</Text>
       </LinearGradient>
     </Pressable>
   );

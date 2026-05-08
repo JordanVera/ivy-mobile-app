@@ -9,6 +9,7 @@ import {
   Platform,
   Pressable,
   ScrollView,
+  StyleSheet,
   TextInput,
   useColorScheme,
   View,
@@ -20,12 +21,13 @@ import {
   GoogleSignInButton,
 } from '@/components/auth/google-sign-in-button';
 import { IvyText } from '@/components/ivy/ivy-text';
+import { Image as ExpoImage } from 'expo-image';
 
 /**
  * Matches the auth shell used on `login.tsx` (same layout as web Clerk sign-in /
  * sign-up: hero strip + elevated card, social + email form).
  */
-const HERO_IMAGE = require('@/assets/images/nebula.jpg');
+const HERO_IMAGE = require('@/assets/images/ivy-7.jpeg');
 
 export default function SignUpScreen() {
   const { signUp, errors, fetchStatus } = useSignUp();
@@ -218,12 +220,16 @@ export default function SignUpScreen() {
       >
         <View className="flex-1">
           <View className="min-h-[108px] flex-[2] overflow-hidden">
-            <Image
+            <ExpoImage
               source={HERO_IMAGE}
-              className="absolute inset-0 h-full w-full"
-              resizeMode="cover"
+              contentFit="cover"
+              contentPosition="top"
+              style={StyleSheet.absoluteFillObject}
             />
-            <View className="flex-1 justify-end bg-ivy-accent/20 px-6 pb-6"></View>
+            <View
+              className="flex-1 justify-end bg-black/60 px-6 pb-6"
+              pointerEvents="none"
+            />
           </View>
 
           <View className="min-h-0 flex-[9.5] -mt-[18px] rounded-t-[32px] bg-white pt-2 shadow-[0_-4px_12px_rgb(0_0_0_/_0.08)] elevation-[8] dark:bg-zinc-950">

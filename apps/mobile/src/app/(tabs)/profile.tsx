@@ -6,7 +6,7 @@ import { ActivityIndicator, Pressable, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useUniwind } from 'uniwind';
 
-import { GoldGradientButton } from '@/components/ivy/gold-gradient-button';
+import { AccentGradientButton } from '@/components/ivy/accent-gradient-button';
 import { IvyCard } from '@/components/ivy/ivy-card';
 import { IvyText } from '@/components/ivy/ivy-text';
 import {
@@ -132,7 +132,13 @@ export default function ProfileScreen() {
   }, []);
 
   const onSignOut = useCallback(async () => {
-    await signOut();
+    try {
+      await signOut();
+    } catch {
+      // Session may already be invalid on the server (e.g. expired, revoked,
+      // or app reloaded mid-session). Clerk clears the local token cache even
+      // when the remote /remove call fails, so it's safe to redirect anyway.
+    }
     router.replace('/login');
   }, [signOut]);
 
@@ -364,7 +370,7 @@ export default function ProfileScreen() {
             })}
           </View>
 
-          <GoldGradientButton title="Sign out" onPress={onSignOut} />
+          <AccentGradientButton title="Sign out" onPress={onSignOut} />
         </ScrollView>
       </View>
     </SafeAreaView>

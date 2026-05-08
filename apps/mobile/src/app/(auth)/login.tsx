@@ -1,5 +1,6 @@
 import { useSignIn } from '@clerk/expo';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import { Image as ExpoImage } from 'expo-image';
 import { Link } from 'expo-router';
 import { useState } from 'react';
 import {
@@ -9,6 +10,7 @@ import {
   Platform,
   Pressable,
   ScrollView,
+  StyleSheet,
   TextInput,
   useColorScheme,
   View,
@@ -22,12 +24,12 @@ import {
   AuthOrDivider,
   GoogleSignInButton,
 } from '@/components/auth/google-sign-in-button';
-import { GoldGradientButton } from '@/components/ivy/gold-gradient-button';
+import { AccentGradientButton } from '@/components/ivy/accent-gradient-button';
 import { IvyText } from '@/components/ivy/ivy-text';
 import { IvyColors } from '@/constants/ivy-colors';
 
 /** Placeholder hero art — swap anytime */
-const HERO_IMAGE = require('@/assets/images/nebula.jpg');
+const HERO_IMAGE = require('@/assets/images/ivy-grid.png');
 
 export default function LoginScreen() {
   const { signIn, errors, fetchStatus } = useSignIn();
@@ -148,7 +150,7 @@ export default function LoginScreen() {
             </IvyText>
           )}
           <View className="mt-6">
-            <GoldGradientButton
+            <AccentGradientButton
               title="Verify"
               onPress={handleVerify}
               disabled={isBusy || !code}
@@ -169,12 +171,16 @@ export default function LoginScreen() {
         <View className="flex-1">
           {/* Hero — ~20% height; card flex below takes the rest */}
           <View className="min-h-[108px] flex-[2] overflow-hidden">
-            <Image
+            <ExpoImage
               source={HERO_IMAGE}
-              className="absolute inset-0 h-full w-full"
-              resizeMode="cover"
+              contentFit="cover"
+              contentPosition="top"
+              style={StyleSheet.absoluteFillObject}
             />
-            <View className="flex-1 justify-end bg-ivy-accent/20 px-6 pb-6"></View>
+            <View
+              className="flex-1 justify-end bg-black/60 px-6 pb-6"
+              pointerEvents="none"
+            />
           </View>
 
           {/* Card — ~80% of height (flex 8 vs hero flex 2) */}

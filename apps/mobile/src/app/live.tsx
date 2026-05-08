@@ -10,7 +10,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AddToCalendarButton } from '@/components/ivy/add-to-calendar-button';
 import { FeaturedYoutubePlayer } from '@/components/ivy/featured-youtube-player';
-import { GoldGradientButton } from '@/components/ivy/gold-gradient-button';
+import { AccentGradientButton } from '@/components/ivy/accent-gradient-button';
 import { IvyCard } from '@/components/ivy/ivy-card';
 import { IvyHeading } from '@/components/ivy/ivy-heading';
 import { IvyText } from '@/components/ivy/ivy-text';
@@ -137,7 +137,7 @@ export default function LiveEventScreen() {
                 {isLive ? (
                   <View className="mt-6">
                     <FeaturedYoutubePlayer videoId={event.youtubeVideoId} />
-                    <GoldGradientButton
+                    <AccentGradientButton
                       title="Open in YouTube"
                       onPress={() =>
                         void Linking.openURL(
