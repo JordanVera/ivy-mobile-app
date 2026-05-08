@@ -1,6 +1,7 @@
 import { useAuth, useClerk, useUser } from '@clerk/expo';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
+import * as WebBrowser from 'expo-web-browser';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -24,6 +25,9 @@ const THEME_OPTIONS: { key: ThemePreference; label: string }[] = [
   { key: 'dark', label: 'Dark' },
   { key: 'system', label: 'System' },
 ];
+
+const WEB_PRICING_URL =
+  (process.env.EXPO_PUBLIC_WEB_URL ?? 'http://localhost:3000') + '/pricing';
 
 type PlanFeature = { id: string; name: string; slug: string; description: string | null };
 type BillingPlan = {
@@ -120,9 +124,11 @@ type MembershipSectionProps = {
 function PlanCard({
   plan,
   isActive,
+  onSubscribe,
 }: {
   plan: BillingPlan;
   isActive: boolean;
+  onSubscribe: () => void;
 }) {
   const isFree = !plan.hasBaseFee;
   const price = plan.fee
@@ -200,6 +206,21 @@ function PlanCard({
           ))}
         </View>
       )}
+
+      {!isActive && plan.hasBaseFee && (
+        <View className="border-t border-zinc-100 px-4 py-3 dark:border-zinc-800">
+          <Pressable
+            onPress={onSubscribe}
+            className="items-center rounded-xl bg-ivy-accent py-2.5 active:opacity-80"
+          >
+            <IvyText className="text-sm font-semibold text-zinc-900">
+              {plan.freeTrialEnabled && plan.freeTrialDays
+                ? `Start ${plan.freeTrialDays}-day free trial`
+                : 'Subscribe'}
+            </IvyText>
+          </Pressable>
+        </View>
+      )}
     </View>
   );
 }
@@ -246,6 +267,10 @@ function MembershipSection({
     return aPrice - bPrice;
   });
 
+  const handleSubscribe = () => {
+    void WebBrowser.openAuthSessionAsync(WEB_PRICING_URL);
+  };
+
   return (
     <View>
       {sortedPlans.map((plan) => (
@@ -253,6 +278,7 @@ function MembershipSection({
           key={plan.id}
           plan={plan}
           isActive={activePlanSlugs.includes(plan.slug)}
+          onSubscribe={handleSubscribe}
         />
       ))}
     </View>
