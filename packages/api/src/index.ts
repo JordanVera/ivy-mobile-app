@@ -1,3 +1,4 @@
+import { billingRouter } from './routers/billing';
 import { episodeThreadRouter } from './routers/episode-thread';
 import { exchangeRouter } from './routers/exchange';
 import { feedRouter } from './routers/feed';
@@ -9,6 +10,7 @@ import { youtubeRouter } from './routers/youtube';
 import { router } from './trpc';
 
 export const appRouter = router({
+  billing: billingRouter,
   episodeThread: episodeThreadRouter,
   exchange: exchangeRouter,
   feed: feedRouter,
