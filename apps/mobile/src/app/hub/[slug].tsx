@@ -6,6 +6,7 @@ import {
   ActivityIndicator,
   Alert,
   KeyboardAvoidingView,
+  Modal,
   Platform,
   Pressable,
   ScrollView,
@@ -19,6 +20,7 @@ import {
   type ReplyTarget,
 } from '@/components/ivy/exchange-composer';
 import { ExchangeMessageRow } from '@/components/ivy/exchange-message-row';
+import { HubMemberRow } from '@/components/ivy/hub-member-row';
 import { IvyText } from '@/components/ivy/ivy-text';
 import { useToast } from '@/components/ivy/toast-provider';
 import { IconSymbol } from '@/components/ui/icon-symbol';
@@ -43,6 +45,7 @@ export default function HubScreen() {
   const [replyTo, setReplyTo] = useState<ReplyTarget | null>(null);
   const [editTarget, setEditTarget] = useState<EditTarget | null>(null);
   const [activeMessageId, setActiveMessageId] = useState<string | null>(null);
+  const [showMembers, setShowMembers] = useState(false);
 
   const hubQuery = trpc.hubs.get.useQuery(
     { slug: slug ?? '' },
@@ -56,6 +59,11 @@ export default function HubScreen() {
       refetchInterval: isFocused ? POLL_INTERVAL_MS : false,
       refetchOnWindowFocus: true,
     },
+  );
+
+  const membersQuery = trpc.hubs.members.useQuery(
+    { slug: slug ?? '' },
+    { enabled: !!slug && showMembers },
   );
 
   // ── Send ────────────────────────────────────────────────────────────────────
@@ -281,14 +289,24 @@ export default function HubScreen() {
             >
               {hub?.name ?? 'Hub'}
             </IvyText>
-            <Pressable
-              onPress={handleNotifications}
-              hitSlop={12}
-              accessibilityLabel="Turn on notifications"
-              className="h-10 w-10 items-center justify-center rounded-full"
-            >
-              <IconSymbol name="bell.fill" size={20} color={ACCENT} />
-            </Pressable>
+            <View className="flex-row items-center">
+              <Pressable
+                onPress={() => setShowMembers(true)}
+                hitSlop={12}
+                accessibilityLabel="View members"
+                className="h-10 w-10 items-center justify-center rounded-full"
+              >
+                <IconSymbol name="person.2.fill" size={20} color={ACCENT} />
+              </Pressable>
+              <Pressable
+                onPress={handleNotifications}
+                hitSlop={12}
+                accessibilityLabel="Turn on notifications"
+                className="h-10 w-10 items-center justify-center rounded-full"
+              >
+                <IconSymbol name="bell.fill" size={20} color={ACCENT} />
+              </Pressable>
+            </View>
           </View>
 
           {/* Messages */}
@@ -403,6 +421,89 @@ export default function HubScreen() {
           </View>
         </KeyboardAvoidingView>
       </SafeAreaView>
+      {/* Members sheet */}
+      <Modal
+        visible={showMembers}
+        animationType="slide"
+        presentationStyle="pageSheet"
+        onRequestClose={() => setShowMembers(false)}
+      >
+        <SafeAreaView
+          style={{ flex: 1 }}
+          edges={['top', 'left', 'right']}
+          className="bg-zinc-50 dark:bg-zinc-950"
+        >
+          {/* Sheet header */}
+          <View className="flex-row items-center justify-between border-b border-zinc-200 px-4 py-3 dark:border-zinc-800">
+            <IvyText className="text-base font-semibold text-zinc-900 dark:text-white">
+              {hub?.memberCount != null
+                ? `${hub.memberCount} ${hub.memberCount === 1 ? 'Member' : 'Members'}`
+                : 'Members'}
+            </IvyText>
+            <Pressable
+              onPress={() => setShowMembers(false)}
+              hitSlop={12}
+              accessibilityLabel="Close members"
+              className="h-9 w-9 items-center justify-center rounded-full bg-zinc-100 dark:bg-zinc-800"
+            >
+              <IconSymbol name="xmark" size={16} color={ACCENT} />
+            </Pressable>
+          </View>
+
+          {/* Member list */}
+          <ScrollView
+            style={{ flex: 1 }}
+            contentContainerStyle={{ paddingBottom: 32 }}
+            showsVerticalScrollIndicator={false}
+          >
+            {membersQuery.isLoading ? (
+              <View className="items-center py-12">
+                <ActivityIndicator color={ACCENT} />
+              </View>
+            ) : membersQuery.isError ? (
+              <View className="px-5 py-8">
+                <IvyText className="text-sm text-red-600 dark:text-red-400">
+                  {membersQuery.error.message}
+                </IvyText>
+                <Pressable
+                  onPress={() => void membersQuery.refetch()}
+                  className="mt-3 self-start rounded-full border border-zinc-300 px-4 py-2 dark:border-zinc-700"
+                >
+                  <IvyText className="text-[11px] font-semibold uppercase tracking-[2px] text-zinc-900 dark:text-white">
+                    Retry
+                  </IvyText>
+                </Pressable>
+              </View>
+            ) : !membersQuery.data?.length ? (
+              <View className="items-center py-12">
+                <IconSymbol
+                  name="person.2.fill"
+                  size={28}
+                  color="#a1a1aa"
+                />
+                <IvyText className="mt-3 text-center text-sm text-zinc-500 dark:text-zinc-400">
+                  No members yet.
+                </IvyText>
+              </View>
+            ) : (
+              membersQuery.data.map((member, idx) => (
+                <View key={member.userId}>
+                  {idx > 0 && (
+                    <View className="mx-5 border-b border-zinc-100 dark:border-zinc-800" />
+                  )}
+                  <HubMemberRow
+                    name={member.name}
+                    email={member.email}
+                    imageUrl={member.imageUrl}
+                    joinedAppAt={member.joinedAppAt}
+                    joinedHubAt={member.joinedHubAt}
+                  />
+                </View>
+              ))
+            )}
+          </ScrollView>
+        </SafeAreaView>
+      </Modal>
     </>
   );
 }

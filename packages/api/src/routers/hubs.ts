@@ -648,6 +648,32 @@ export const hubsRouter = router({
       return { messageId: input.messageId, likedByMe: !existing, likeCount };
     }),
 
+  /** All members of a hub, ordered by join date (oldest first). */
+  members: publicProcedure.input(parseHubSlug).query(async ({ ctx, input }) => {
+    const hub = await ctx.prisma.hub.findUnique({
+      where: { slug: input.slug },
+      select: { id: true },
+    });
+    if (!hub) {
+      throw new TRPCError({ code: 'NOT_FOUND', message: 'Hub not found' });
+    }
+
+    const memberships = await ctx.prisma.hubMembership.findMany({
+      where: { hubId: hub.id },
+      orderBy: { joinedAt: 'asc' },
+      include: { user: true },
+    });
+
+    return memberships.map((m) => ({
+      userId: m.user.id,
+      name: displayNameForUser(m.user),
+      email: m.user.email,
+      imageUrl: m.user.imageUrl,
+      joinedAppAt: m.user.createdAt.toISOString(),
+      joinedHubAt: m.joinedAt.toISOString(),
+    }));
+  }),
+
   setEventRsvp: protectedProcedure
     .input(parseSetEventRsvp)
     .mutation(async ({ ctx, input }) => {
